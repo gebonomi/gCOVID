@@ -1,0 +1,37 @@
+########## gCOVID initialization card file #################
+####### --> Data Sample and territories to analyze (no " " [space] in between)
+### To see Italy as a total in "italy" sample, use ITA
+#territories world:Italy,Spain,US,UK,France,Germany
+territories italy:ITA,Lombardia,Brescia,Bergamo,Milano
+####### --> What to show (no " " [space] between items) --> see at the end for the options
+variables confirmed,deceased,new_deceased
+####### --> Where to start to show "what" and "howmany" (e.g. recovered > 1000, or "day_0_what==days" [days "day_0_howmany" from January 1st]
+day_0_what      days
+day_0_howmany   60
+####### --> PerTerritory (var_or_terr = 0) or PerVariable (var_or_terr = 1)
+var_or_terr		1
+####### --> Normalization [0 = no, 1 = per population]
+norm			1
+# ROOT Database (booleans -> 0/1) [root_db_read = 1 --> reading from the ROOT DB, otherwise reading from the git/CSV repositories]
+root_db_read	0
+root_db_create	0
+# Verbose
+verbose			0
+# Batch (or online)
+batch			0
+######### OPTIONS ON WHAT TO SHOW 
+#confirmed;             ///< This is the cumulative of the positive cases
+#new_confirmed; 		///< This is the daily (tested) positive cases
+#actives;   			///< This is the cumulative of the active cases (confirmed - deceased - recovered)
+#new_actives;		    ///< This is the daily increase in active cases (new_confirmed - new_deceased - new_recovered)
+#recovered;             ///< This is the cumulative of the recovered cases
+#new_recovered;         ///< This is the daily recovered cases
+#deceased;              ///< This is the cumulative of the deceased cases
+#new_deceased;          ///< This is the daily deceased cases
+#tests;                 ///< This is the cumulative of the performed tests
+#new_tests;             ///< This is the daily new tests
+#fatality            	///< Defined as deceased/confirmed
+#hospitalized_symptoms;
+#hospitalized_intensive;
+#hostpitalized_total;
+#home_isolation;
