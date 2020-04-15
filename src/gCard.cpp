@@ -119,8 +119,9 @@ void gCard::DecodeTerritories(const string& line) {
 	size_t columns = s.find(":");
 	if(columns!=std::string::npos) {
 		string sample = s.substr(0,columns); ///< Removing first letter (to search for) to avoid confusion with upper/lower case in gCOVID.card
-		if(sample.find("orld") != std::string::npos) world = true;
-		if(sample.find("taly") != std::string::npos) italy = true;
+		if(sample.find("orld") != std::string::npos) 	world = true;
+		if(sample.find("taly") != std::string::npos) 	italy = true;
+		if(sample.find("egioni") != std::string::npos) 	italy = true;
 		if(sample.find("rovince") != std::string::npos) italy = true;
 	} else {
 		cout << "gCard::DecodeTerritories --> Could not find : in territories field" << endl;

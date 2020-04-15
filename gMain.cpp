@@ -24,22 +24,21 @@ bool gMain::Init() {
 		return false;
 	}
 
+	// < ---------------- ROOT INTERACTIVE App ------------------ >
+
 	if(!myCard.batch) myApp = new TApplication("myApp", 0, 0);
 
-	// < ----------------       CARD      ------------------ >
-
-	myCard.Reset();
-	myCard.ReadValues();
-
 	// < ----------------  ROOT MANAGER   ------------------ >
+
 	myRootManager = std::unique_ptr<gRootManager>(new gRootManager());
 
 	// < ----------------   DATA READER   ------------------ >
 
 	myDataReader = std::unique_ptr<gDataReader>(new gDataReader(myCard));
-	Italy 		= myDataReader->GetItaly();
-	World 		= myDataReader->GetWorld();
-	ALL			= myDataReader->GetDataSample();
+
+	myDataReader->ReadData();
+
+	DataSample= myDataReader->GetDataSample();
 
 	return true;
 }
@@ -49,14 +48,13 @@ void gMain::Execute() {
 	// < ----------------      PLOTTER    ------------------ >
 
 	myPlotter = std::unique_ptr<gPlotter>(new gPlotter(myCard));
-	if(myCard.italy) 	myPlotter->SetDataSample(Italy);
-	if(myCard.world) 	myPlotter->SetDataSample(World);
-//	myPlotter->SetDataSample(ALL);
+	myPlotter->SetDataSample(DataSample);
 	myPlotter->CreateHistos();
 	return;
 }
 
 void gMain::Finish() {
+
 	myPlotter->Draw();
 
 	if(!myCard.batch) myApp->Run() ;

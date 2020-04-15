@@ -23,37 +23,29 @@ void gRootDB::Write() {
 		return;
 	}
 	FillWrite();
-    tALL->Write();
-    tWorld->Write();
-    tItaly->Write();
+    tData->Write();
    	return;
 }
 
 void gRootDB::Read(const vector<string>& territories) {
 	ROOT_DB_FILE->cd();
 	SetBranchesRead();
-	if(!tALL) {
-		cout << "gRootDB::Read --> could not open TTree tALL" << endl;
+	if(!tData) {
+		cout << "gRootDB::Read --> could not open TTree tData" << endl;
 	}
 	FillRead(territories);
 	return;
 }
 
 void gRootDB::FillRead(const vector<string>& territories) {
-	World = shared_ptr<gDataSample>(new gDataSample);
-    Italy = shared_ptr<gDataSample>(new gDataSample);
-    ALL = shared_ptr<gDataSample>(new gDataSample);
-	World->SetName("World");
-	Italy->SetName("Italy");
-	ALL->SetName("ALL");
+    DataSample = shared_ptr<gDataSample>(new gDataSample);
+	DataSample->SetName("ALL");
 
-	map<string, vector<gDataEntry>> WorldMap;
-	map<string, vector<gDataEntry>> ItalyMap;
-	map<string, vector<gDataEntry>> ALLMap;
+	map<string, vector<gDataEntry>> DataSampleMap;
 	map<string, vector<gDataEntry>>::iterator it;
-	unsigned int nentries = tALL->GetEntriesFast();
+	unsigned int nentries = tData->GetEntriesFast();
 	for(auto i=0; i<nentries; i++) {
-		tALL->GetEntry(i);
+		tData->GetEntry(i);
 		sample 		= *sample_ptr;
 		territory 	= *territory_ptr;
 		date 		= *date_ptr;
@@ -65,46 +57,26 @@ void gRootDB::FillRead(const vector<string>& territories) {
 		if(!ok) continue;
 		gDataEntry this_entry = FillEntry();
 		///< Filling the Map for the sample
-		if(sample=="world") {
-			it = WorldMap.find(territory);
-			if(it!=WorldMap.end()) { ///< this territory s already in the map
-				it->second.push_back(this_entry);
-			} else { ///< new territory -> insert
-				vector<gDataEntry> this_vector; this_vector.push_back(this_entry);
-				WorldMap.insert(std::pair<string, vector<gDataEntry>>(territory,this_vector));
-			}
-		}
-		if(sample=="italy") {
-			it = ItalyMap.find(territory);
-			if(it!=ItalyMap.end()) { ///< this territory s already in the map
-				it->second.push_back(this_entry);
-			} else { ///< new territory -> insert
-				vector<gDataEntry> this_vector; this_vector.push_back(this_entry);
-				ItalyMap.insert(std::pair<string, vector<gDataEntry>>(territory,this_vector));
-			}
-		}
-		it = ALLMap.find(territory);
-		if(it!=ALLMap.end()) { ///< this territory s already in the map
+		it = DataSampleMap.find(territory);
+		if(it!=DataSampleMap.end()) { ///< this territory s already in the map
 			it->second.push_back(this_entry);
 		} else { ///< new territory -> insert
 			vector<gDataEntry> this_vector; this_vector.push_back(this_entry);
-			ALLMap.insert(std::pair<string, vector<gDataEntry>>(territory,this_vector));
+			DataSampleMap.insert(std::pair<string, vector<gDataEntry>>(territory,this_vector));
 		}
 	}
-	World->SetDataMap(WorldMap);
-	Italy->SetDataMap(ItalyMap);
-	ALL->SetDataMap(ALLMap);
+	DataSample->SetDataMap(DataSampleMap);
 	return;
 }
 void gRootDB::FillWrite() {
 	map<string, vector<gDataEntry>>::iterator it;
-	map<string, vector<gDataEntry>> DataMap = World->GetDataMap();
-	sample = "world";
+	map<string, vector<gDataEntry>> DataMap = DataSample->GetDataMap();
 	for(it=DataMap.begin(); it!=DataMap.end(); it++) {
 		territory = it->first;
 		vector<gDataEntry> entries = it->second;
 		for(unsigned int i=0; i<entries.size(); i++) {
 			entry 			        = entries[i];
+			sample 					= entry.sample;
 			population 				= entry.population;
 			date 			        = entry.date;
 			day_of_the_year         = entry.day_of_the_year;
@@ -122,36 +94,7 @@ void gRootDB::FillWrite() {
             hospitalized_intensive  = entry.entryMap.at("hospitalized_intensive");
             hostpitalized_total     = entry.entryMap.at("hostpitalized_total");
             home_isolation          = entry.entryMap.at("home_isolation");
-            tWorld->Fill();
-			tALL->Fill();
-		}
-	}
-	DataMap = Italy->GetDataMap();
-	sample = "italy";
-	for(it=DataMap.begin(); it!=DataMap.end(); it++) {
-		territory = it->first;
-		vector<gDataEntry> entries = it->second;
-		for(unsigned int i=0; i<entries.size(); i++) {
-			entry 			        = entries[i];
-			population 				= entry.population;
-			date 			        = entry.date;
-			day_of_the_year         = entry.day_of_the_year;
-            confirmed               = entry.entryMap.at("confirmed");
-            new_confirmed           = entry.entryMap.at("new_confirmed");
-            actives                 = entry.entryMap.at("actives");
-            new_actives             = entry.entryMap.at("new_actives");
-            recovered               = entry.entryMap.at("recovered");
-            new_recovered           = entry.entryMap.at("new_recovered");
-            deceased                = entry.entryMap.at("deceased");
-            new_deceased            = entry.entryMap.at("new_deceased");
-            tests                   = entry.entryMap.at("tests");
-            new_tests               = entry.entryMap.at("new_tests");
-            hospitalized_symptoms   = entry.entryMap.at("hospitalized_symptoms");
-            hospitalized_intensive  = entry.entryMap.at("hospitalized_intensive");
-            hostpitalized_total     = entry.entryMap.at("hostpitalized_total");
-            home_isolation          = entry.entryMap.at("home_isolation");
-            tItaly->Fill();
-			tALL->Fill();
+			tData->Fill();
 		}
 	}
 	return;
@@ -159,6 +102,7 @@ void gRootDB::FillWrite() {
 
 gDataEntry gRootDB::FillEntry() {
 	gDataEntry entry;
+	entry.sample							   = sample					  ;
 	entry.territory                            = territory                ;
 	entry.population                           = population               ;
 	entry.date                                 = date                     ;
@@ -181,27 +125,27 @@ gDataEntry gRootDB::FillEntry() {
 }
 
 bool gRootDB::SetBranchesRead() {
-	tALL = std::unique_ptr<TTree>(dynamic_cast<TTree*>(ROOT_DB_FILE->Get("ALL")));
-    tALL->SetMakeClass(1);
-    tALL->SetBranchAddress("sample", &sample_ptr);
-    tALL->SetBranchAddress("territory", &territory_ptr);
-    tALL->SetBranchAddress("date", &date_ptr);
-    tALL->SetBranchAddress("day_of_the_year", &day_of_the_year);
-    tALL->SetBranchAddress("population", &population);
-    tALL->SetBranchAddress("actives", &actives);
-    tALL->SetBranchAddress("confirmed", &confirmed);
-    tALL->SetBranchAddress("deceased", &deceased);
-    tALL->SetBranchAddress("home_isolation", &home_isolation);
-    tALL->SetBranchAddress("hospitalized_intensive", &hospitalized_intensive);
-    tALL->SetBranchAddress("hospitalized_symptoms", &hospitalized_symptoms);
-    tALL->SetBranchAddress("hostpitalized_total", &hostpitalized_total);
-    tALL->SetBranchAddress("new_actives", &new_actives);
-    tALL->SetBranchAddress("new_confirmed", &new_confirmed);
-    tALL->SetBranchAddress("new_deceased", &new_deceased);
-    tALL->SetBranchAddress("new_recovered", &new_recovered);
-    tALL->SetBranchAddress("new_tests", &new_tests);
-    tALL->SetBranchAddress("recovered", &recovered);
-    tALL->SetBranchAddress("tests", &tests);
+	tData = std::unique_ptr<TTree>(dynamic_cast<TTree*>(ROOT_DB_FILE->Get("Data")));
+    tData->SetMakeClass(1);
+    tData->SetBranchAddress("sample", &sample_ptr);
+    tData->SetBranchAddress("territory", &territory_ptr);
+    tData->SetBranchAddress("date", &date_ptr);
+    tData->SetBranchAddress("day_of_the_year", &day_of_the_year);
+    tData->SetBranchAddress("population", &population);
+    tData->SetBranchAddress("actives", &actives);
+    tData->SetBranchAddress("confirmed", &confirmed);
+    tData->SetBranchAddress("deceased", &deceased);
+    tData->SetBranchAddress("home_isolation", &home_isolation);
+    tData->SetBranchAddress("hospitalized_intensive", &hospitalized_intensive);
+    tData->SetBranchAddress("hospitalized_symptoms", &hospitalized_symptoms);
+    tData->SetBranchAddress("hostpitalized_total", &hostpitalized_total);
+    tData->SetBranchAddress("new_actives", &new_actives);
+    tData->SetBranchAddress("new_confirmed", &new_confirmed);
+    tData->SetBranchAddress("new_deceased", &new_deceased);
+    tData->SetBranchAddress("new_recovered", &new_recovered);
+    tData->SetBranchAddress("new_tests", &new_tests);
+    tData->SetBranchAddress("recovered", &recovered);
+    tData->SetBranchAddress("tests", &tests);
     return true;
 }
 
@@ -211,86 +155,44 @@ bool gRootDB::SetBranchesWrite() {
 		return false;
 	}
 	///< Defining the output TTrees
-	tALL 		= unique_ptr<TTree>(new TTree("ALL", "ALL Covid Data"));
-	tWorld 		= unique_ptr<TTree>(new TTree("World", "World Covid Data"));
-	tItaly 		= unique_ptr<TTree>(new TTree("Italy", "Italian Covid Data"));
-	///< tALL
-	tALL->Branch("sample"			, &sample);
-	tALL->Branch("territory"		, &territory);
-	tALL->Branch("date"				, &date);
-    tALL->Branch("day_of_the_year"	, &day_of_the_year	, "day_of_the_year/I");
-    tALL->Branch("population"		, &population		, "population/D");
-	///< tWorld
-	tWorld->Branch("sample"			, "string"			, &sample);
-	tWorld->Branch("territory"		, "string"			, &territory);
-	tWorld->Branch("date"			, "string"			, &date);
-    tWorld->Branch("day_of_the_year", &day_of_the_year	, "day_of_the_year/I");
-    tWorld->Branch("population"		, &population		, "population/D");
-	///< tItaly
-	tItaly->Branch("sample"			, "string"			, &sample);
-	tItaly->Branch("territory"		, "string"			, &territory);
-	tItaly->Branch("date"			, "string"			, &date);
-    tItaly->Branch("day_of_the_year", &day_of_the_year	, "day_of_the_year/I");
-    tItaly->Branch("population"		, &population		, "population/D");
+	tData 		= unique_ptr<TTree>(new TTree("Data", "ALL [World, Italy] Covid Data"));
+	///< tData
+	tData->Branch("sample"			, &sample);
+	tData->Branch("territory"		, &territory);
+	tData->Branch("date"				, &date);
+    tData->Branch("day_of_the_year"	, &day_of_the_year	, "day_of_the_year/I");
+    tData->Branch("population"		, &population		, "population/D");
     map<string, double>::iterator it;
     for(it=entry.entryMap.begin(); it!=entry.entryMap.end(); it++) {
     	ostringstream type; type << it->first << "/D";
         if(it->first == "confirmed") {
-        	tALL->Branch(it->first.c_str(), &confirmed, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &confirmed, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &confirmed, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &confirmed, type.str().c_str());
         } else if(it->first == "new_confirmed") {
-        	tALL->Branch(it->first.c_str(), &new_confirmed, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &new_confirmed, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &new_confirmed, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &new_confirmed, type.str().c_str());
         } else if(it->first == "actives") {
-        	tALL->Branch(it->first.c_str(), &actives, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &actives, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &actives, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &actives, type.str().c_str());
         } else if(it->first == "new_actives") {
-        	tALL->Branch(it->first.c_str(), &new_actives, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &new_actives, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &new_actives, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &new_actives, type.str().c_str());
         } else if(it->first == "recovered") {
-        	tALL->Branch(it->first.c_str(), &recovered, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &recovered, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &recovered, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &recovered, type.str().c_str());
         } else if(it->first == "new_recovered") {
-        	tALL->Branch(it->first.c_str(), &new_recovered, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &new_recovered, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &new_recovered, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &new_recovered, type.str().c_str());
         } else if(it->first == "deceased") {
-        	tALL->Branch(it->first.c_str(), &deceased, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &deceased, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &deceased, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &deceased, type.str().c_str());
         } else if(it->first == "new_deceased") {
-        	tALL->Branch(it->first.c_str(), &new_deceased, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &new_deceased, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &new_deceased, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &new_deceased, type.str().c_str());
         } else if(it->first == "tests") {
-        	tALL->Branch(it->first.c_str(), &tests, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &tests, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &tests, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &tests, type.str().c_str());
         } else if(it->first == "new_tests") {
-        	tALL->Branch(it->first.c_str(), &new_tests, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &new_tests, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &new_tests, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &new_tests, type.str().c_str());
         } else if(it->first == "hospitalized_symptoms") {
-        	tALL->Branch(it->first.c_str(), &hospitalized_symptoms, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &hospitalized_symptoms, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &hospitalized_symptoms, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &hospitalized_symptoms, type.str().c_str());
         } else if(it->first == "hospitalized_intensive") {
-        	tALL->Branch(it->first.c_str(), &hospitalized_intensive, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &hospitalized_intensive, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &hospitalized_intensive, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &hospitalized_intensive, type.str().c_str());
         } else if(it->first == "hostpitalized_total") {
-        	tALL->Branch(it->first.c_str(), &hostpitalized_total, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &hostpitalized_total, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &hostpitalized_total, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &hostpitalized_total, type.str().c_str());
         } else if(it->first == "home_isolation") {
-        	tALL->Branch(it->first.c_str(), &home_isolation, type.str().c_str());
-        	tWorld->Branch(it->first.c_str(), &home_isolation, type.str().c_str());
-        	tItaly->Branch(it->first.c_str(), &home_isolation, type.str().c_str());
+        	tData->Branch(it->first.c_str(), &home_isolation, type.str().c_str());
         } else {
             cout << "gRootDB::SetBranchesWrite --> could not set branch for variable " << it->first << endl;
         }

@@ -13,6 +13,7 @@ class gDataEntry {
 public:
 	gDataEntry();
 	gDataEntry(const string&);
+	string sample;
 	string territory;
 	double population;
 	string date;

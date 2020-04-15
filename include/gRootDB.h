@@ -16,24 +16,20 @@ public:
 	gRootDB(const string&, const string&);
 	void Write();
 	void Read(const vector<string>&);
-	shared_ptr<gDataSample> GetItaly() {return Italy;};
-	shared_ptr<gDataSample> GetWorld() {return World;};
-	shared_ptr<gDataSample> GetDataSample() {return ALL;};
 
-	void SetWorld(shared_ptr<gDataSample> 	D) {World 		= D;};
-	void SetItaly(shared_ptr<gDataSample> 	D) {Italy 		= D;};
+	shared_ptr<gDataSample> GetData() {return DataSample;};
+
+	void SetData(shared_ptr<gDataSample> D) {DataSample = D;};
 
 	void Close();
+
 	virtual ~gRootDB();
+
 private:
 	unique_ptr<TFile> ROOT_DB_FILE;
-	unique_ptr<TTree> tALL;
-	unique_ptr<TTree> tWorld;
-	unique_ptr<TTree> tItaly;
+	unique_ptr<TTree> tData;
 
-	shared_ptr<gDataSample> Italy;
-	shared_ptr<gDataSample> World;
-	shared_ptr<gDataSample> ALL;
+	shared_ptr<gDataSample> DataSample;
 	///< Variables to book the brances and fill the data
 	gDataEntry entry;
 	string sample, territory, date;

@@ -19,9 +19,8 @@ class gDataReader {
 public:
 	gDataReader();
 	gDataReader(gCard&);
-	shared_ptr<gDataSample>		GetItaly() 		{return Italy;};
-	shared_ptr<gDataSample> 	GetWorld() 		{return World;};
-	shared_ptr<gDataSample> 	GetDataSample() {return ALL;};
+	void ReadData();
+	shared_ptr<gDataSample> 	GetDataSample() {return DataSample;};
 
 	virtual ~gDataReader();
 
@@ -39,10 +38,7 @@ private:
 	unique_ptr<gRootDB> myRootDB;
 
 	map<string, double> pop;
-
-	shared_ptr<gDataSample> Italy;
-	shared_ptr<gDataSample> World;
-	shared_ptr<gDataSample> ALL;
+	shared_ptr<gDataSample> DataSample;
 
 	void Init();
 	void FillDataFromCSV();

@@ -17,9 +17,9 @@ gDataEntry::~gDataEntry() {
 }
 
 void gDataEntry::Init() {
+	sample					= "";
 	territory 				= "";
 	population				= std::numeric_limits<double>::quiet_NaN();
-	//	population			///< Territory population
 	date 					= "";
 	day_of_the_year         = -1; ///< 0-365 [2020 has 366 days]
 	//	confirmed; 			///< This is the cumulative of the positive cases
@@ -48,14 +48,15 @@ void gDataEntry::Init() {
     entryMap.insert(std::pair<string, double>("home_isolation",	        std::numeric_limits<double>::quiet_NaN()));
 }
 
-void gDataEntry::FillValues(const string& territory, const string& legend, const string& line) {
-	if(territory=="Italy") FillValuesItaly(legend, line);
-	if(territory=="Regioni") FillValuesRegioni(legend, line);
-	if(territory=="Province") FillValuesProvince(legend, line);
+void gDataEntry::FillValues(const string& name, const string& legend, const string& line) {
+	if(name=="Italy") FillValuesItaly(legend, line);
+	if(name=="Regioni") FillValuesRegioni(legend, line);
+	if(name=="Province") FillValuesProvince(legend, line);
 }
 
 void gDataEntry::FillValuesItaly(const string& legend, const string& line) {
 	Init();
+	sample = "italy";
 	string dummy;
     istringstream s;
 	istringstream iss_line(line);
@@ -100,6 +101,7 @@ void gDataEntry::FillValuesItaly(const string& legend, const string& line) {
 
 void gDataEntry::FillValuesRegioni(const string& legend, const string& line) {
 	Init();
+	sample = "regioni";
 	string dummy;
     istringstream s;
 	istringstream iss_line(line);
@@ -148,6 +150,7 @@ void gDataEntry::FillValuesRegioni(const string& legend, const string& line) {
 
 void gDataEntry::FillValuesProvince(const string& legend, const string& line) {
 	Init();
+	sample = "province";
 	string dummy;
     istringstream s;
 	istringstream iss_line(line);

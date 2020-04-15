@@ -33,9 +33,7 @@ private:
     TApplication* myApp;
 
 
-	shared_ptr<gDataSample> Italy;
-	shared_ptr<gDataSample> World;
-	shared_ptr<gDataSample> ALL  ;
+	shared_ptr<gDataSample> DataSample;
 };
 
 #endif /* GMAIN_H_ */

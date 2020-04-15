@@ -13,9 +13,10 @@ gDataReader::gDataReader() {
 
 gDataReader::gDataReader(gCard& Card) {
 	myCard 		= Card;
-	myRootDB	= nullptr;
-
 	Init();
+}
+
+void gDataReader::ReadData() {
 
 	if(myCard.root_db_read) {
 		FillDataFromRootDB();
@@ -23,9 +24,9 @@ gDataReader::gDataReader(gCard& Card) {
 		FillDataFromCSV();
 	}
 
-
 	if(myCard.root_db_create) WriteToRootDB();
 }
+
 
 gDataReader::~gDataReader() {
 	// TODO Auto-generated destructor stub
@@ -33,13 +34,13 @@ gDataReader::~gDataReader() {
 
 void gDataReader::Init() {
 	///< Setting path to DB (IN and OUT)
-	italy_repo_file = "DATA/ITALIA/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv";
-	regioni_repo_file = "DATA/ITALIA/dati-regioni/dpc-covid19-ita-regioni.csv";
-	province_repo_file = "DATA/ITALIA/dati-province/dpc-covid19-ita-province.csv";
-	world_repo_dir = "DATA/WORLD/csse_covid_19_data/csse_covid_19_time_series";
+	italy_repo_file 	 = "DATA/ITALIA/dati-andamento-nazionale/dpc-covid19-ita-andamento-nazionale.csv";
+	regioni_repo_file 	 = "DATA/ITALIA/dati-regioni/dpc-covid19-ita-regioni.csv";
+	province_repo_file 	 = "DATA/ITALIA/dati-province/dpc-covid19-ita-province.csv";
+	world_repo_dir 		 = "DATA/WORLD/csse_covid_19_data/csse_covid_19_time_series";
 	population_data_file = "DATA/population_by_territory.csv";
-	root_dir = "./DATA";
-	root_db_file = "COVID_DB.root";
+	root_dir 			 = "./DATA";
+	root_db_file 		 = "COVID_DB.root";
 	return;
 }
 
@@ -47,18 +48,16 @@ void gDataReader::FillDataFromCSV() {
 	///< Reading population data
 	pop = ReadPopulation();
 	///< Reading values from the CSV repositories
-	World 		= ReadFromWorldCSV(world_repo_dir);
-	Italy 		= ReadFromItalyCSV(italy_repo_file);
-	///< Merging Italy with Regioni and Province
+	shared_ptr<gDataSample> World 		= ReadFromWorldCSV(world_repo_dir);
+	shared_ptr<gDataSample> Italy 		= ReadFromItalyCSV(italy_repo_file);
 	shared_ptr<gDataSample> Regioni 	= ReadFromItalyCSV(regioni_repo_file);
 	shared_ptr<gDataSample> Province 	= ReadFromItalyCSV(province_repo_file);
-	Italy->Append(Regioni);
-	Italy->Append(Province);
-	ALL = shared_ptr<gDataSample>(new gDataSample);
-	ALL->Append(World);
-	ALL->Append(Italy);
-	ALL->Append(Regioni);
-	ALL->Append(Province);
+	///< Merging all
+	DataSample = shared_ptr<gDataSample>(new gDataSample);
+	DataSample->Append(World);
+	DataSample->Append(Italy);
+	DataSample->Append(Regioni);
+	DataSample->Append(Province);
 	return;
 }
 
@@ -71,9 +70,7 @@ void gDataReader::FillDataFromRootDB() {
 		return;
 	}
 	myRootDB->Read(myCard.territories);
-	World 	= myRootDB->GetWorld();
-	Italy 	= myRootDB->GetItaly();
-	ALL		= myRootDB->GetDataSample();
+	DataSample = myRootDB->GetData();
 	myRootDB->Close();
 	return;
 }
@@ -87,9 +84,7 @@ void gDataReader::WriteToRootDB() {
 		return;
 	}
 
-	myRootDB->SetWorld(World);
-	myRootDB->SetItaly(Italy);
-
+	myRootDB->SetData(DataSample);
 	myRootDB->Write();
 	myRootDB->Close();
 	return;
@@ -149,6 +144,7 @@ shared_ptr<gDataSample> gDataReader::ReadFromWorldCSV(const string& repo_dir) { 
 
 	map<string, vector<gDataEntry>>::iterator it;
     for(it = map_confirmed.begin(); it != map_confirmed.end(); ++it) { ///< Looping on the confirmed ones [and adding here the other into]
+    	string sample = "world";
     	string territory = it->first;
     	vector<gDataEntry> entries;
 
@@ -158,6 +154,7 @@ shared_ptr<gDataSample> gDataReader::ReadFromWorldCSV(const string& repo_dir) { 
 
     	for(auto& c:confirmed) {
     		gDataEntry thisEntry = c;
+    		thisEntry.sample = sample;
     		for(auto& d:deceased) {
         		if(thisEntry.territory!=d.territory) continue;
         		if(thisEntry.day_of_the_year!=d.day_of_the_year) continue;
