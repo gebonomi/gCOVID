@@ -1,0 +1,321 @@
+CODE;Country Name;2018
+W;Afghanistan;38928341
+W;Albania;2877800
+W;Algeria;43851043
+W;Andorra;77265
+W;Angola;32866268
+W;Antigua and Barbuda;97928
+W;Argentina;45195777
+W;Armenia;2963234
+W;Australia;24992369
+W;Austria;9006400
+W;Azerbaijan;10139175
+W;Bahamas;393248
+W;Bahrain;1701583
+W;Bangladesh;164689383
+W;Barbados;287371
+W;Belarus;9449321
+W;Belgium;11589616
+W;Belize;397621
+W;Benin;12123198
+W;Bhutan;771612
+W;Bolivia;11673029
+W;Bosnia and Herzegovina;3280815
+W;Botswana;2351625
+W;Brazil;212559409
+W;Brunei;437483
+W;Bulgaria;6948445
+W;Burkina Faso;20903278
+W;Burma;54409794
+W;Burundi;11890781
+W;Cabo Verde;555988
+W;Cambodia;16718971
+W;Cameroon;26545864
+W;Canada;37058856
+W;Central African Republic;4829764
+W;Chad;16425859
+W;Chile;19116209
+W;China;1392730000
+W;Colombia;50882884
+W;Congo (Brazzaville);5518092
+W;Congo (Kinshasa);89561404
+W;Costa Rica;5094114
+W;Cote d'Ivoire;26378275
+W;Croatia;4105268
+W;Cuba;11326616
+W;Cyprus;1207361
+W;Czechia;10708982
+W;Denmark;5792203
+W;Diamond Princess;3000
+W;Djibouti;988002
+W;Dominica;71991
+W;Dominican Republic;10847904
+W;Ecuador;17643060
+W;Egypt;102334403
+W;El Salvador;6486201
+W;Equatorial Guinea;1402985
+W;Eritrea;3546427
+W;Estonia;1326539
+W;Eswatini;1160164
+W;Ethiopia;114963583
+W;Fiji;896444
+W;Finland;5540718
+W;France;65273512
+W;Gabon;2225728
+W;Gambia;2416664
+W;Georgia;3989175
+W;Germany;83783945
+W;Ghana;31072945
+W;Greece;10423056
+W;Grenada;112519
+W;Guatemala;17915567
+W;Guinea;13132792
+W;Guinea-Bissau;1967998
+W;Guyana;786559
+W;Haiti;11402533
+W;Holy See;809
+W;Honduras;9904608
+W;Hungary;9660350
+W;Iceland;341250
+W;India;1380004385
+W;Indonesia;273523621
+W;Iran;83992953
+W;Iraq;40222503
+W;Ireland;4937796
+W;Israel;8655541
+W;Italy;60461828
+W;Jamaica;2961161
+W;Japan;126476458
+W;Jordan;10203140
+W;Kazakhstan;18776707
+W;Kenya;53771300
+W;South Korea;51269183
+W;Kosovo;1810366
+W;Kuwait;4270563
+W;Kyrgyzstan;6524191
+W;Laos;7275556
+W;Latvia;1886202
+W;Lebanon;6825442
+W;Liberia;5057677
+W;Libya;6871287
+W;Liechtenstein;38137
+W;Lithuania;2722291
+W;Luxembourg;625976
+W;Madagascar;27691019
+W;Malawi;19129955
+W;Malaysia;32365998
+W;Maldives;540542
+W;Mali;20250834
+W;Malta;441539
+W;Mauritania;4649660
+W;Mauritius;1271767
+W;Mexico;128932753
+W;Moldova;4033963
+W;Monaco;39244
+W;Mongolia;3278292
+W;Montenegro;628062
+W;Morocco;36910558
+W;Mozambique;31255435
+W;MS Zaandam;
+W;Namibia;2540916
+W;Nepal;29136808
+W;Netherlands;17134873
+W;New Zealand;4822233
+W;Nicaragua;6624554
+W;Niger;24206636
+W;Nigeria;206139587
+W;North Macedonia;2083380
+W;Norway;5421242
+W;Oman;5106622
+W;Pakistan;220892331
+W;Panama;4314768
+W;Papua New Guinea;8947027
+W;Paraguay;7132530
+W;Peru;32971846
+W;Philippines;109581085
+W;Poland;37846605
+W;Portugal;10196707
+W;Qatar;2881060
+W;Romania;19237682
+W;Russia;145934460
+W;Rwanda;12952209
+W;Saint Kitts and Nevis;53192
+W;Saint Lucia;183629
+W;Saint Vincent and the Grenadines;110947
+W;San Marino;33938
+W;Sao Tome and Principe;219161
+W;Saudi Arabia;34813867
+W;Senegal;16743930
+W;Serbia;8737370
+W;Seychelles;98340
+W;Sierra Leone;7976985
+W;Singapore;5850343
+W;Slovakia;5459643
+W;Slovenia;2078932
+W;Somalia;15893219
+W;South Africa;59308690
+W;South Sudan;11193729
+W;Spain;46754783
+W;Sri Lanka;21413250
+W;Sudan;43849269
+W;Suriname;586634
+W;Sweden;10099270
+W;Switzerland;8654618
+W;Syria;17500657
+W;Taiwan*;23816775
+W;Tanzania;59734213
+W;Thailand;69799978
+W;Timor-Leste;1318442
+W;Togo;8278737
+W;Trinidad and Tobago;1399491
+W;Tunisia;11818618
+W;Turkey;84339067
+W;Uganda;45741000
+W;Ukraine;43733759
+W;United Arab Emirates;9890400
+W;UK;67886004
+;US;327167434
+W;Uruguay;3473727
+W;Uzbekistan;33469199
+W;Venezuela;28435943
+W;Vietnam;97338583
+W;West Bank and Gaza;5101416
+W;Western Sahara;597330
+W;Yemen;28498687
+W;Zambia;18383956
+W;Zimbabwe;14862927
+IT;ITA;60359546
+IT;Nord-ovest;16093286
+IT;Piemonte;4356406
+IT;Torino;2259523
+IT;Vercelli;170911
+IT;Biella;175585
+IT;Verbano-Cusio-Ossola;158349
+IT;Novara;369018
+IT;Cuneo;587098
+IT;Asti;214638
+IT;Alessandria;421284
+IT;Valle d'Aosta;125666
+IT;Aosta;125666
+IT;Liguria;1550640
+IT;Imperia;213840
+IT;Savona;276064
+IT;Genova;841180
+IT;La Spezia;219556
+IT;Lombardia;10060574
+IT;Varese;890768
+IT;Como;599204
+IT;Lecco;337380
+IT;Sondrio;181095
+IT;Milano;3250315
+IT;Bergamo;1114590
+IT;Brescia;1265954
+IT;Pavia;545888
+IT;Lodi;230198
+IT;Cremona;358955
+IT;Mantova;412292
+IT;Nord-est;11652827
+IT;Trentino Alto Adige / SŸdtirol;1072276
+IT;P.A. Bolzano;531178
+IT;Bolzano;531178
+IT;P.A. Trento;541098
+IT;Trento;541098
+IT;Veneto;4905854
+IT;Verona;926497
+IT;Vicenza;862418
+IT;Belluno;202950
+IT;Treviso;887806
+IT;Venezia;853338
+IT;Padova;937908
+IT;Rovigo;234937
+IT;Friuli Venezia Giulia;1215220
+IT;Pordenone;312533
+IT;Udine;528791
+IT;Gorizia;139403
+IT;Trieste;234493
+IT;Emilia-Romagna;4459477
+IT;Piacenza;287152
+IT;Parma;451631
+IT;Reggio nell'Emilia;531891
+IT;Modena;705393
+IT;Bologna;1014619
+IT;Ferrara;345691
+IT;Ravenna;389456
+IT;Forli-Cesena;394627
+IT;Rimini;339017
+IT;Centro;12016009
+IT;Toscana;3729641
+IT;Massa Carrara;194878
+IT;Lucca;387876
+IT;Pistoia;292473
+IT;Firenze;1011349
+IT;Prato;257716
+IT;Livorno;334832
+IT;Pisa;419037
+IT;Arezzo;342654
+IT;Siena;267197
+IT;Grosseto;221629
+IT;Umbria;882015
+IT;Perugia;656382
+IT;Terni;225633
+IT;Marche;1525271
+IT;Pesaro e Urbino;358886
+IT;Ancona;471228
+IT;Macerata;314178
+IT;Ascoli Piceno;207179
+IT;Lazio;5879082
+IT;Viterbo;317030
+IT;Rieti;155503
+IT;Roma;4342212
+IT;Latina;575254
+IT;Frosinone;489083
+IT;Sud;13957942
+IT;Abruzzo;1311580
+IT;L'Aquila;299031
+IT;Teramo;308052
+IT;Pescara;318909
+IT;Chieti;385588
+IT;Molise;305617
+IT;Isernia;84379
+IT;Campobasso;221238
+IT;Campania;5801692
+IT;Caserta;922965
+IT;Benevento;277018
+IT;Napoli;3084890
+IT;Avellino;418306
+IT;Salerno;1098513
+IT;Puglia;4029053
+IT;Foggia;622183
+IT;Bari;1251994
+IT;Taranto;576756
+IT;Brindisi;392975
+IT;Lecce;795134
+IT;Basilicata;562869
+IT;Potenza;364960
+IT;Matera;197909
+IT;Calabria;1947131
+IT;Cosenza;705753
+IT;Crotone;174980
+IT;Catanzaro;358316
+IT;Vibo Valentia;160073
+IT;Reggio di Calabria;548009
+IT;Isole;6639482
+IT;Sicilia;4999891
+IT;Trapani;430492
+IT;Palermo;1252588
+IT;Messina;626876
+IT;Caltanissetta;262458
+IT;Enna;164788
+IT;Catania;1107702
+IT;Ragusa;320893
+IT;Sardegna;1639591
+IT;Sassari;491571
+IT;Nuoro;208550
+IT;Cagliari;431038
+IT;Fermo;173800
+IT;Barletta-Andria-Trani;390011
+IT;Agrigento;434870
+IT;Siracusa;399224
+IT;Oristano;157707
+IT;Monza e della Brianza;873935
+IT;Sud Sardegna;350725
