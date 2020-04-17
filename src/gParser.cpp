@@ -33,6 +33,7 @@ map<string, vector<gDataEntry>> gParser::LinesToEntries(const string& legend, ve
 		vector<string> values = LineToValues(line);
 		istringstream iss;
 		string territory = values[where_territory];
+		if(territory=="Diamond Princess") continue;
 		///< Check if more than one entry for this territory (e.g. Washington, US - New York, US ...)
 		///< In case remove it and save the data in a tmp vector --> then add to the new entry
 		tmp.clear();

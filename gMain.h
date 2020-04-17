@@ -8,8 +8,9 @@
 #ifndef GMAIN_H_
 #define GMAIN_H_
 #include "gCard.h"
-#include <gPlotter.h>
 #include <gReader.h>
+#include <gPlotter.h>
+#include <gAnalyzer.h>
 #include <gRootManager.h>
 
 
@@ -26,12 +27,11 @@ public:
 
 private:
 	gCard myCard;
-	unique_ptr<gDataReader> myDataReader;
-	unique_ptr<gPlotter> myPlotter;
-
-	unique_ptr<gRootManager> myRootManager;
+	unique_ptr<gDataReader> 	myDataReader;
+	unique_ptr<gPlotter> 		myPlotter;
+	unique_ptr<gAnalyzer>		myAnalyzer;
+	unique_ptr<gRootManager> 	myRootManager;
     TApplication* myApp;
-
 
 	shared_ptr<gDataSample> DataSample;
 };

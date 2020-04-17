@@ -29,6 +29,11 @@ public:
 
 	void Print(int);
 
+	bool isEmpty() {
+		if(DataMap.size()==0) return true;
+		return false;
+	}
+
 	virtual ~gDataSample();
 
 private:

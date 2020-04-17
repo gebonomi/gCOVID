@@ -49,9 +49,9 @@ void gDataEntry::Init() {
 }
 
 void gDataEntry::FillValues(const string& name, const string& legend, const string& line) {
-	if(name=="Italy") FillValuesItaly(legend, line);
-	if(name=="Regioni") FillValuesRegioni(legend, line);
-	if(name=="Province") FillValuesProvince(legend, line);
+	if(name=="Italy") 		FillValuesItaly(legend, line);
+	if(name=="Regioni") 	FillValuesRegioni(legend, line);
+	if(name=="Province") 	FillValuesProvince(legend, line);
 }
 
 void gDataEntry::FillValuesItaly(const string& legend, const string& line) {
@@ -175,6 +175,21 @@ void gDataEntry::FillValuesProvince(const string& legend, const string& line) {
 
 void gDataEntry::Print(int option = 0) {
 	map<string, double>::iterator it;
+    double confirmed                   = entryMap.at("confirmed");
+    double new_confirmed               = entryMap.at("new_confirmed");
+    double actives                     = entryMap.at("actives");
+    double new_actives                 = entryMap.at("new_actives");
+    double recovered                   = entryMap.at("recovered");
+//    double new_recovered               = entryMap.at("new_recovered");
+    double deceased                    = entryMap.at("deceased");
+    double new_deceased                = entryMap.at("new_deceased");
+    double tests                       = entryMap.at("tests");
+//    double new_tests                   = entryMap.at("new_tests");
+//    double hospitalized_symptoms       = entryMap.at("hospitalized_symptoms");
+//    double hospitalized_intensive      = entryMap.at("hospitalized_intensive");
+//    double hostpitalized_total         = entryMap.at("hostpitalized_total");
+//    double home_isolation              = entryMap.at("home_isolation");
+
 	switch(option) {
 	   case 0: ///< everything - default
             cout << "date 					" << date 					<< endl;
@@ -185,17 +200,57 @@ void gDataEntry::Print(int option = 0) {
 			}
 			break;
        case 1: ///< short with data in the DB
-           cout << "date " << date;
-           cout << " (" << territory << ")";
-           cout << " (day " << setw(3) << day_of_the_year << "):";
-           cout << " confirmed " 	<< entryMap.at("confirmed");
-           cout << " deceased  " 	<< entryMap.at("deceased ");
-           cout << " recovered " 	<< entryMap.at("recovered");
-           if(entryMap.at("tests")>0) cout << " tests " << entryMap.at("tests");
+           cout << territory;
+           cout << " (" << date << "): ";
+//           cout << " (day " << setw(3) << day_of_the_year << "):";
+           cout << " confirmed " 	<< confirmed;
+           cout << " (" 			<< (confirmed/population)*1.e6 << ")";
+           cout << " deceased " 	<< deceased;
+           cout << " (" 			<< (deceased/population)*1.e6 << ")";
+           cout << " recovered " 	<< recovered;
+           cout << " (" 			<< (recovered/population)*1.e6 << ")";
+           if(entryMap.at("tests")>0) cout << " tests " << tests;
            cout << endl;
-           break;
+       case 2: ///< Formatted for gAnalyzer
+    	   cout << left  << setw(11) << setfill(' ')  << territory.substr(0,10);
+    	   cout << left  << setw(9)  << setfill(' ')  << date;
+    	   ///< Confirmed
+    	   cout << right << setw(10) << setfill(' ')  << confirmed
+        			<< left  << " ("
+    				<< right << setw(6)  <<  setfill(' ') << fixed << setprecision(0) << (confirmed/population)*1.e6 << ")";
+    	   ///< Deceased
+    	   cout << right << setw(8) << setfill(' ')  << deceased
+        			<< left  << " ("
+    				<< right << setw(5)  <<  setfill(' ') << fixed << setprecision(0) << (deceased/population)*1.e6 << ")";
+    	   ///< Actives
+    	   cout << right << setw(9) << setfill(' ')  << actives;
+    	   ///< new_confirmed
+    	   cout << right << setw(7) << setfill(' ')  << new_confirmed;
+//    	   cout	<< left  << " ("
+//    			<< right << setw(5)  <<  setfill(' ') << fixed << setprecision(0) << (new_confirmed/population)*1.e6 << ")";
+    	   ///< new_deceased
+    	   cout << right << setw(5) << setfill(' ')  << new_deceased;
+//    	   cout	<< left  << " ("
+//    			<< right << setw(5)  <<  setfill(' ') << fixed << setprecision(0) << (new_deceased/population)*1.e6 << ")";
+    	   ///< new_actives
+    	   cout << right << setw(6) << setfill(' ')  << new_actives;
+    	   cout << endl;
+
+    	   break;
 	}
 }
+
+void gDataEntry::StandardizeDate() {
+	time_t entry_time = DateStringToTimeT(date);
+	tm *ltm = localtime(&entry_time);
+	ostringstream s;
+	s 	<< 1900 + ltm->tm_year << "/"
+		<< std::setw(2) << std::setfill('0') << 1 + ltm->tm_mon << "/"
+		<< std::setw(2) << std::setfill('0') << ltm->tm_mday;
+	date = s.str();
+	return;
+}
+
 ///< Prinvate utilities of gDataEntry
 time_t gDataEntry::DateStringToTimeT(const string& date) {
 	///< It constructs the time_t info from the date string

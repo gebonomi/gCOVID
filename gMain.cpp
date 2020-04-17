@@ -45,11 +45,18 @@ bool gMain::Init() {
 
 void gMain::Execute() {
 
+	// < ----------------     ANALYZER    ------------------ >
+
+	myAnalyzer = std::unique_ptr<gAnalyzer>(new gAnalyzer(myCard));
+	myAnalyzer->SetDataSample(DataSample);
+	myAnalyzer->Analyze();
+
 	// < ----------------      PLOTTER    ------------------ >
 
 	myPlotter = std::unique_ptr<gPlotter>(new gPlotter(myCard));
 	myPlotter->SetDataSample(DataSample);
 	myPlotter->CreateHistos();
+
 	return;
 }
 

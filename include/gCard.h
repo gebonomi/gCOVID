@@ -10,6 +10,7 @@
 #define INCLUDE_GCARD_H_
 
 #include "myCommon.h"
+#include "gDataEntry.h"
 
 class gCard {
 public:
@@ -20,22 +21,27 @@ public:
 	virtual ~gCard();
 
 
-	bool   isCard;
-	vector<string> territories;
-	vector<string> variables;
-	bool   italy;
-	bool   world;
-	string day_zero_what;
-	int	   day_zero_howmany;
-	bool   var_or_terr;
-	int    norm;
-	bool   verbose;
-	bool   batch;
-	bool   root_db_read;
-	bool   root_db_create;
+	bool   			isCard;
+	vector<string> 	territories;
+	vector<string> 	variables;
+	bool   			italy;
+	bool   			world;
+	string 			day_zero_what;
+	int	   			day_zero_howmany;
+	bool   			var_or_terr;
+	int    			norm;
+	bool   			verbose;
+	bool   			batch;
+	bool   			root_db_read;
+	bool   			root_db_create;
+	string 			sample;
+	string 			rank;
+	double			pop_limit;
+	int				nstop;
 
 private:
 	string filename = "gCOVID.card";
+	bool SanityCheck();
 	void DecodeTerritories(const string&);
 	void DecodeVariables(const string&);
 	void SetProvince();

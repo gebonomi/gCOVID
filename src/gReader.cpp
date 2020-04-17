@@ -289,6 +289,7 @@ void gDataReader::CompleteInfo(vector<gDataEntry>& data) {
 			if( isnan(data[i].entryMap.at("new_tests")) && !isnan(tests) )
 				data[i].entryMap.at("new_tests") 	= data[i].entryMap.at("tests") 		- data[i-1].entryMap.at("tests");
 		}
+		data[i].StandardizeDate();
 	}
 	return;
 }

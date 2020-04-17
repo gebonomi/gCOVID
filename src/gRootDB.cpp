@@ -50,11 +50,6 @@ void gRootDB::FillRead(const vector<string>& territories) {
 		territory 	= *territory_ptr;
 		date 		= *date_ptr;
 		///< Load only the territories that are required
-		bool ok = false;
-		for(auto& t:territories) {
-			if(territory==t) ok = true;
-		}
-		if(!ok) continue;
 		gDataEntry this_entry = FillEntry();
 		///< Filling the Map for the sample
 		it = DataSampleMap.find(territory);

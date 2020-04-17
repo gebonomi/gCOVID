@@ -1,25 +1,42 @@
 ########## gCOVID initialization card file #################
-####### --> Data Sample and territories to analyze (no " " [space] in between)
-### To see Italy as a total in "italy" sample, use ITA
-#territories world:Italy,Spain,US,UK,France,Germany
-territories italy:ITA,Lombardia,Brescia,Bergamo,Milano
-####### --> What to show (no " " [space] between items) --> see at the end for the options
-variables confirmed,deceased,new_deceased
-####### --> Where to start to show "what" and "howmany" (e.g. recovered > 1000, or "day_0_what==days" [days "day_0_howmany" from January 1st]
-day_0_what      days
-day_0_howmany   60
-####### --> PerTerritory (var_or_terr = 0) or PerVariable (var_or_terr = 1)
-var_or_terr		1
-####### --> Normalization [0 = no, 1 = per population]
-norm			1
-# ROOT Database (booleans -> 0/1) [root_db_read = 1 --> reading from the ROOT DB, otherwise reading from the git/CSV repositories]
-root_db_read	0
-root_db_create	0
-# Verbose
-verbose			0
-# Batch (or online)
-batch			0
-######### OPTIONS ON WHAT TO SHOW 
+#------------------ gPLOTTER SECTION --------------------------------------------------------------	#
+# [Legend (sample=world or italy)]
+# [territories: 	sample:list of territories (for sample italy, all italy = ITA) - no spaces " "	]
+# [variables:   	What to show (see INDEX SECTION) - no spaces " "								]
+# [day_0_what:		zero day to show from															]
+# [day_0_howmany:  	e.g. from 100 deceased; if what=="days" -> zero day is "howmany" from Jan. 1st	]
+# [var_or_terr:		= 1 --> group plots per variable (one canvas per variable) otherwise per terr.	]
+# [norm:			= 1 --> normalize variables to populatio (WARNING: it acts also for gANALYZER)	]
+# -------------------
+territories 		world:Italy,Spain,US,UK,France
+#territories 		italy:Lombardia,Veneto,Piemonte,Emilia-Romagna
+variables 			confirmed,deceased,new_deceased
+day_0_what      	deceased
+day_0_howmany   	100
+var_or_terr			1
+norm				0
+#------------------ gANALYZER SECTION -------------------------------------------------------------	#
+# [Legend
+# [sample: 			world, italy, regioni, province or ALL											]
+# [rank: 			rank territories for ... (e.g. recovered)										]
+# [pop_limit: 		limit the ranking to territories with population < pop_limit					]
+# [nstop: 			stop listing/ranking after nstop territories									]
+# -------------------
+sample				world
+rank				deceased
+pop_limit			1.e6
+nstop				10
+#------------------ gREADER SECTION --------------------------------------------------------------- #
+# [Legend]
+# [root_db_read: 	= 1 -> reads from the ROOT DB, otherwise reads from git/CSV + creates ROOT DB	]
+# [batch:        	= 1 -> only analysis and no plots												]
+# -------------------
+root_db_read		1
+verbose				0
+batch				1
+#------------------ INDEX SECTION -----------------------------------------------------------------	#
+#
+# RAW VARIABLES 
 #confirmed;             ///< This is the cumulative of the positive cases
 #new_confirmed; 		///< This is the daily (tested) positive cases
 #actives;   			///< This is the cumulative of the active cases (confirmed - deceased - recovered)
@@ -30,7 +47,6 @@ batch			0
 #new_deceased;          ///< This is the daily deceased cases
 #tests;                 ///< This is the cumulative of the performed tests
 #new_tests;             ///< This is the daily new tests
-#fatality            	///< Defined as deceased/confirmed
 #hospitalized_symptoms;
 #hospitalized_intensive;
 #hostpitalized_total;

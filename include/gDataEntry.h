@@ -26,7 +26,7 @@ public:
 	void 	Sum(const gDataEntry&);
 	void 	EntryCorrection();
 	int  	DaysFromYearStart(const string&);
-//	void 	FillMap();
+	void	StandardizeDate();
 
 	void 	Print(int);
 	virtual ~gDataEntry();
@@ -38,6 +38,8 @@ private:
 	void 	FillValuesProvince(const string&, const string&);
 	string 	CleanLine(const string&);
 	string 	CleanString(const string&);
+
+
 };
 
 #endif /* INCLUDE_GDATAENTRY_H_ */

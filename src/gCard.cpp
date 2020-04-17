@@ -30,6 +30,9 @@ void gCard::Reset() {
 	batch				= true;
 	root_db_read		= false;
 	root_db_create		= false;
+	sample.clear();
+	rank.clear();
+	nstop				= 0;;
 	return;
 }
 
@@ -41,74 +44,57 @@ bool gCard::ReadValues() {
         while ( getline (myfile,line) ) {
         	///< Skipping comment lines
         	if(line.find("#")!=std::string::npos) continue;
-        	///< Looking for territories
-            found = line.find("territories");
+
+            found = line.find("territories");			///< Looking for territories
             if(found!=std::string::npos) {
             	DecodeTerritories(line);
             }
-        	///< Looking for variables
-            found = line.find("variables");
+
+            found = line.find("variables");				///< Looking for variables
             if(found!=std::string::npos) {
             	DecodeVariables(line);
             }
-            ///< Looking for verbose
+
             found = line.find("verbose");
             if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> verbose;		}
-            ///< Looking for batch
+
             found = line.find("batch");
             if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> batch;			}
-            ///< Looking for day_zero_what
+
             found = line.find("day_0_what");
             if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> day_zero_what;	}
-            ///< Looking for day_zero_howmany
+
             found = line.find("day_0_howmany");
             if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> day_zero_howmany;}
-            ///< Looking for var_or_terr
+
             found = line.find("var_or_terr");
-            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> var_or_terr; 			}
-            ///< Looking for norm
+            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> var_or_terr; 	}
+
             found = line.find("norm");
             if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> norm; 			}
-            ///< Looking for root_db_create
-            found = line.find("root_db_create");
-            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> root_db_create; }
-            ///< Looking for root_db_read
+
             found = line.find("root_db_read");
-            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> root_db_read; }
+            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> root_db_read; 	}
+
+            found = line.find("sample");
+            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> sample; 		}
+
+            found = line.find("rank");
+            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> rank; 		}
+
+            found = line.find("pop_limit");
+            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> pop_limit; 		}
+
+            found = line.find("nstop");
+            if(found!=std::string::npos) { istringstream iss(line); iss >> dummy >> nstop; 		}
+
         }
-        ///< Setting other flags/fixing some inconsistency
-        if(root_db_read) root_db_create = false; ///< Cannot create the ROOT DB if we are reading from it
         myfile.close();
     }  else {
         cout << "gCard::ReadValues() -> File " << filename <<  " could not be found" << endl;
         return false;
     }
-    bool check_province = false;
-    for(auto& t:territories) {
-        for(auto& p:province) {
-            if(t==p) {
-                check_province = true;
-                break;
-            }
-        }    
-    }
-    if(check_province) { ///< Overriding because "province" has only the confirmed
-		variables.clear();
-		variables.push_back("confirmed");
-		variables.push_back("new_confirmed");
-	}
-	if(world) { ///< Overriding because "world" doesn't have some categories
-		vector<string>::iterator it = variables.begin();
-		for( ; it!=variables.end(); ) {
-			if(*it=="tests" || *it =="new_tests" || *it == "hospitalized_symptoms" ||
-			   *it =="hospitalized_intensive" || *it=="hostpitalized_total" || *it=="home_isolation") {
-					it = variables.erase(it);
-			} else {
-				it++;
-			}
-		}
-	}
-	return true;
+    return SanityCheck();
 }
 
 void gCard::DecodeTerritories(const string& line) {
@@ -153,6 +139,55 @@ void gCard::DecodeVariables(const string& line) {
 	return;
 }
 
+bool gCard::SanityCheck() {
+	///< Setting other flags/fixing some inconsistency
+    root_db_create = !root_db_read; ///< If not reading from the ROOT DB, read from CSV and create the ROOT DB
+    ///< Check variables
+    gDataEntry entry;
+    map<string, double> entryMap = entry.entryMap;
+
+    for(auto& v:variables) {
+    	bool ok = false;
+    	for(auto it=entryMap.begin(); it!=entryMap.end(); it++) {
+    		if(v==it->first) ok = true;
+    	}
+    	if(!ok) {
+    		cout << "gCard::SanityCheck --> variable " << v << " is not an available one" << endl;
+    		return false;
+    	}
+    }
+    ///< Overiding variables based on available data from different samples (for the PLOTTER)
+    bool check_province = false;
+    for(auto& t:territories) {
+        for(auto& p:province) {
+            if(t==p) {
+                check_province = true;
+                break;
+            }
+        }
+    }
+    if(check_province) { ///< Overriding because "province" has only the confirmed
+		variables.clear();
+		variables.push_back("confirmed");
+		variables.push_back("new_confirmed");
+	}
+	if(world) { ///< Overriding because "world" doesn't have some categories
+		vector<string>::iterator it = variables.begin();
+		for( ; it!=variables.end(); ) {
+			if(*it=="tests" || *it =="new_tests" || *it == "hospitalized_symptoms" ||
+			   *it =="hospitalized_intensive" || *it=="hostpitalized_total" || *it=="home_isolation") {
+					it = variables.erase(it);
+			} else {
+				it++;
+			}
+		}
+	}
+    ///< Overiding variables based on available data from different samples (for the ANALYZER)
+	if(sample=="province") {
+		if(rank!="confirmed"||rank!="new_confirmed") rank = "confirmed";
+	}
+	return true;
+}
 void gCard::Print() {
 	if(italy) cout << "italy \t" << italy << endl;
 	if(world) cout << "Showing world" << endl;
