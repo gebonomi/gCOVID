@@ -10,8 +10,7 @@
 
 gPlotter::gPlotter() {
 	// TODO Auto-generated constructor stub
-	SetPalette();
-//	SetPopulation();
+	cout << "gPlotter::gPlotter --> use other constructor \"gPlotter::gPlotter(gCard& card)\" " << endl;
 }
 
 gPlotter::gPlotter(gCard& card) {
@@ -22,7 +21,7 @@ gPlotter::gPlotter(gCard& card) {
 	SetPalette();
 }
 
-void gPlotter::CreateHistos() {
+void gPlotter::AddRawValuesHistos() {
 	map<string, vector<gDataEntry>> dataMap = DataSample->GetDataMap();
 
 	map<string, double>::iterator eit;
@@ -37,6 +36,7 @@ void gPlotter::CreateHistos() {
 	}
 	string t;
 	string v;
+	///< Raw variables
 	for(auto& a:first) {
 		vector<shared_ptr<TH2D>> these_histos;
 		vector<shared_ptr<TGraphErrors>> these_graphs;
@@ -49,21 +49,21 @@ void gPlotter::CreateHistos() {
 			vector<double> x, ex, y, ey;
 			scale = 1.;
 			for(auto& e:entries) {
-				if(myCard.norm==1) {
+				if(myCard.plotter_norm==1) {
 					scale = 1.e6/e.population;
 					if(isnan(scale)) {
-						cout << "gPlotter::CreateHistos --> population not found for " << e.territory << " in date " << e.date << endl;
+						cout << "gPlotter::AddRawValuesHistos --> population not found for " << e.territory << " in date " << e.date << endl;
 						scale = 1.;
 					}
 				}
-				eit = e.entryMap.find(v);
+				eit = e.rawValues.find(v);
 				x.push_back(e.day_of_the_year-day_zero); ex.push_back(0.);
 				y.push_back(eit->second*scale);
 				double err = sqrt(eit->second)*scale;
 				ey.push_back(err);
 			}
 			if(x.size()==0) {
-				cout << "gPlotter::CreateHistos --> Could not find data for the \"" << v << "\"" << endl;
+				cout << "gPlotter::AddRawValuesHistos --> Could not find data for the \"" << v << "\"" << endl;
 				continue;
 			}
 			ostringstream name, title;
@@ -74,17 +74,117 @@ void gPlotter::CreateHistos() {
 			these_graphs.push_back(ToGraph(t, v, x, ex, y, ey)); ///< territory as name, variable as title
 		}
 		if(these_histos.size()==0 || these_graphs.size()==0) {
-			cout << "gPlotter::CreateHistos --> these_histos.size()==0 || these_graphs.size()==0) for [" << a << "]" << endl;
+			cout << "gPlotter::AddRawValuesHistos --> these_histos.size()==0 || these_graphs.size()==0) for [" << a << "]" << endl;
 			continue;
 		}
 		HistoMap.insert(std::pair<string, vector<shared_ptr<TH2D>>>(a,these_histos));
 		GraphMap.insert(std::pair<string, vector<shared_ptr<TGraphErrors>>>(a,these_graphs));
 	}
-	if(HistoMap.size()!=GraphMap.size()) {
-		cout << "gPlotter::CreateHistos --> HistoMap.size() [" << HistoMap.size() << "] != Graph.Map.size() [" << GraphMap.size() << "]" << endl;
+	return;
+}
+
+void gPlotter::AddRatesHistos() {
+	if(!myCard.var_or_terr) {
+		cout << "gPlotter::AddRatesHistos --> showing rate histos only per variable. Set var_or_terr to 1 in gCOVID.card" << endl;
+	}
+	map<string, vector<gDataEntry>> dataMap = DataSample->GetDataMap();
+	map<string, double>::iterator eit;
+
+	///< Rates variables
+	vector<string> variables;
+	gDataEntry tmp;
+	for(auto it=tmp.rates.begin(); it!=tmp.rates.end(); it++) { variables.push_back(it->first); }
+	///< Rate variables
+	for(auto& v:variables) {
+		vector<shared_ptr<TH2D>> these_histos;
+		vector<shared_ptr<TGraphErrors>> these_graphs;
+		for(auto& t:myCard.territories) {
+			vector<gDataEntry> entries 	= DataSample->GetTerritoryData(t);
+			if(entries.size()==0) continue;
+			int day_zero = DataSample->GetDayZero(t, myCard.day_zero_what, myCard.day_zero_howmany);
+			vector<double> x, ex, y, ey;
+			for(auto& e:entries) {
+//				cout << e.territory << " (" << e.date << "): [" << e.day_of_the_year-day_zero << ", " << eit->second << "]" << endl;
+				eit = e.rates.find(v);
+				if(eit==e.rates.end()) continue;
+				if(isnan(eit->second)) continue;
+				x.push_back(e.day_of_the_year-day_zero); ex.push_back(0.);
+				y.push_back(eit->second*100);
+				ey.push_back(0.);
+			}
+			if(x.size()==0) {
+//				cout << "gPlotter::AddRatesHistos --> Could not find data for rates.at(\"" << v << "\")" << endl;
+				continue;
+			}
+			ostringstream name, title;
+			name << "h_" << t << "_rates_" << v;
+			title << v << " (rate) [days since " << myCard.day_zero_what << " > " << myCard.day_zero_howmany << "]";
+			these_histos.push_back(ToHistoForGraph(name.str(), title.str(), x, ex, y, ey)); ///< Variable and conditions
+			these_graphs.push_back(ToGraph(t, v, x, ex, y, ey)); ///< territory as name, variable as title
+		}
+		if(these_histos.size()==0 || these_graphs.size()==0) {
+			cout << "gPlotter::AddRatesHistos --> these_histos.size()==0 || these_graphs.size()==0) for rates[" << v << "]" << endl;
+			continue;
+		}
+		ostringstream s;
+		s << v << "_rate";
+		HistoMap.insert(std::pair<string, vector<shared_ptr<TH2D>>>(s.str(),these_histos));
+		GraphMap.insert(std::pair<string, vector<shared_ptr<TGraphErrors>>>(s.str(),these_graphs));
 	}
 	return;
 }
+
+void gPlotter::AddDoublingHistos() {
+	if(!myCard.var_or_terr) {
+		cout << "gPlotter::AddDoublingHistos --> showing doubling histos only per variable. Set var_or_terr to 1 in gCOVID.card" << endl;
+	}
+	map<string, vector<gDataEntry>> dataMap = DataSample->GetDataMap();
+	map<string, double>::iterator eit;
+
+	///< Rates variables
+	vector<string> variables;
+	gDataEntry tmp;
+	for(auto it=tmp.doubles.begin(); it!=tmp.doubles.end(); it++) { variables.push_back(it->first); }
+	///< Rate variables
+	for(auto& v:variables) {
+		vector<shared_ptr<TH2D>> these_histos;
+		vector<shared_ptr<TGraphErrors>> these_graphs;
+		for(auto& t:myCard.territories) {
+			vector<gDataEntry> entries 	= DataSample->GetTerritoryData(t);
+			if(entries.size()==0) continue;
+			int day_zero = DataSample->GetDayZero(t, myCard.day_zero_what, myCard.day_zero_howmany);
+			vector<double> x, ex, y, ey;
+			for(auto& e:entries) {
+//				cout << e.territory << " (" << e.date << "): [" << e.day_of_the_year-day_zero << ", " << eit->second << "]" << endl;
+				eit = e.doubles.find(v);
+				if(eit==e.doubles.end()) continue;
+				if(isnan(eit->second)) continue;
+				x.push_back(e.day_of_the_year-day_zero); ex.push_back(0.);
+				y.push_back(eit->second);
+				ey.push_back(0.);
+			}
+			if(x.size()==0) {
+//				cout << "gPlotter::AddRatesHistos --> Could not find data for doubles.at(\"" << v << "\")" << endl;
+				continue;
+			}
+			ostringstream name, title;
+			name << "h_" << t << "_doubles_" << v;
+			title << v << " (1./doubling time) [days since " << myCard.day_zero_what << " > " << myCard.day_zero_howmany << "]";
+			these_histos.push_back(ToHistoForGraph(name.str(), title.str(), x, ex, y, ey)); ///< Variable and conditions
+			these_graphs.push_back(ToGraph(t, v, x, ex, y, ey)); ///< territory as name, variable as title
+		}
+		if(these_histos.size()==0 || these_graphs.size()==0) {
+			cout << "gPlotter::AddDoublingHistos --> these_histos.size()==0 || these_graphs.size()==0) for doubles[" << v << "]" << endl;
+			continue;
+		}
+		ostringstream s;
+		s << v << "_doubles";
+		HistoMap.insert(std::pair<string, vector<shared_ptr<TH2D>>>(s.str(),these_histos));
+		GraphMap.insert(std::pair<string, vector<shared_ptr<TGraphErrors>>>(s.str(),these_graphs));
+	}
+	return;
+}
+
 
 void gPlotter::Draw() {
 	///< This method present the plots per variable (e.g. confirmed, actives, etc.)
@@ -175,18 +275,28 @@ shared_ptr<TH2D> gPlotter::ToHistoForGraph(const string &name, const string& tit
     for(auto& v:ey) {
     	if(v>eyMax) eyMax = v;
     }
-    yMax += eyMax;
     yMin -= eyMax;
+    yMax += eyMax;
     yRange = yMax - yMin;
-    yMin = yMin-yRange/5.;
+    if(yMin!=0.) yMin = yMin-yRange/10.;
+
+    if(title.find("new_actives")==std::string::npos) yMin = 0.;
     yMax = yMax+yRange/5.; ///< Enlarging a little bit the histogram
-    if(yMin>0&&yRange/3.>yMin) yMin = 0.;
-    yMin = 0.;
+    string xtitle = "day";
+    string ytitle = "#";
+	if(myCard.plotter_norm==1) ytitle = "# (per million inhabitants)";
+	if(name.find("rate")!=std::string::npos) { ///< Fixing some parameters for the rate histos
+		ytitle = "\%";
+		if(title.find("confirmed")!=std::string::npos) 		yMax = 60;
+		if(title.find("deceased")!=std::string::npos) 		yMax = 60;
+	}
+	if(name.find("double")!=std::string::npos) { ///< Fixing some parameters for the rate histos
+		ytitle = "1./days";
+	}
     shared_ptr<TH2D> h(new TH2D(name.c_str(), title.c_str(), nBins, xMin, xMax, nBins, yMin, yMax));
-    h->SetXTitle("day"); h->SetYTitle("#");
-	if(myCard.norm==1) h->SetYTitle("# (per million inhabitants)");
-    h->SetStats(kFALSE);
-    return h;
+    h->SetXTitle(xtitle.c_str()); h->SetYTitle(ytitle.c_str());
+	h->SetStats(kFALSE);
+	return h;
 }
 
 void gPlotter::Normalize(vector<shared_ptr<TH2D>>& hs, vector<shared_ptr<TGraphErrors>>& gs) {

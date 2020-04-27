@@ -17,9 +17,17 @@ public:
 	gPlotter(gCard&);
 	void SetDataSample(shared_ptr<gDataSample> D) {
 		DataSample = D;
-//		population = DataSample->GetPopulation();
 	};
-	void CreateHistos();
+
+	void CreateHistos() {
+		if(myCard.show_raw) 		AddRawValuesHistos();
+		if(myCard.show_rates) 		AddRatesHistos();
+		if(myCard.show_doubling) 	AddDoublingHistos();
+		if(HistoMap.size()!=GraphMap.size()) {
+			cout << "gPlotter::CreateHistos --> HistoMap.size() [" << HistoMap.size() << "] != Graph.Map.size() [" << GraphMap.size() << "]" << endl;
+		}
+	};
+
 	void Draw();
 
 	virtual ~gPlotter();
@@ -32,6 +40,10 @@ private:
 	vector<string> variables; ///< Categories to show
 	map<string, vector<shared_ptr<TH2D>>> HistoMap;
 	map<string, vector<shared_ptr<TGraphErrors>>> GraphMap;
+
+	void AddRawValuesHistos();
+	void AddRatesHistos();
+	void AddDoublingHistos();
 
 	shared_ptr<TGraphErrors> ToGraph(const string&, const string&, vector<double>&, vector<double>&, vector<double>&, vector<double>&);
 	shared_ptr<TH2D> ToHistoForGraph(const string&, const string&, vector<double>&, vector<double>&, vector<double>&, vector<double>&);

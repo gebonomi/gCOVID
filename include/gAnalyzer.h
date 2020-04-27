@@ -18,16 +18,23 @@ public:
 	gAnalyzer(const gCard&);
 	void SetDataSample(shared_ptr<gDataSample> sample) {DataSample = sample;};
 	void Analyze();
+	void ShowResults();
 	virtual ~gAnalyzer();
 
 private:
 	gCard myCard;
 	shared_ptr<gDataSample> DataSample;
-	map<string, gDataEntry> HigherEntry(const string&);
-	vector<gDataEntry> Rank(const string&);
-	void OrderBy(vector<gDataEntry>&, const string&);
-	static std::ostream& bold_on(std::ostream& os) 	{return os << "\e[1m";};
-	static std::ostream& bold_off(std::ostream& os) 	{return os << "\e[0m";}
+	vector<gDataEntry>		RankingRaw; 		///< One entry per territory only
+	vector<gDataEntry>		RankingRate;		///< All entries of all territories
+	vector<gDataEntry>		RankingDouble;		///< All entries of all territories
+
+	void 					ThroughData();
+	void 					OrderRawBy();
+	void 					OrderRateBy();
+	void 					OrderDoubleBy();
+	void					ShowRankingRaw();
+	void					ShowRankingRate();
+	void					ShowRankingDouble();
 };
 
 #endif /* INCLUDE_GANALYZER_H_ */

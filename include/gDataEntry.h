@@ -18,15 +18,19 @@ public:
 	double population;
 	string date;
 	int	day_of_the_year; ///< 0-365 [2020 has 366 days]
-	map<string, double> entryMap;
+	map<string, double> rawValues; 	///< raw values from the CSV repositories
+	map<string, double> rates;		///< rate increase values with respect the previous day
+	map<string, double> doubles;	///< days from previous "half value"
+
 
 	void 	Init();
 	void 	FillValues(const string&, const string&, const string&);
-	void 	Replace(const gDataEntry&);
-	void 	Sum(const gDataEntry&);
+	void 	SumRaw(const gDataEntry&);
 	void 	EntryCorrection();
-	int  	DaysFromYearStart(const string&);
+	int  	DaysFrom_1_1_2020(const string&);
 	void	StandardizeDate();
+	void	AddRates(const gDataEntry&);
+//	void	AddDoubles();
 
 	void 	Print(int);
 	virtual ~gDataEntry();

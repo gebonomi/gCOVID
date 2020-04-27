@@ -17,14 +17,13 @@ public:
 
 	void SetDataMap(map<string, vector<gDataEntry>> M) {DataMap = M;};
 	void SetName(const string& s) 					{name = s;};
-//	void SetPopulation(map<string, double> m) 		{population = m;};
 	void Append(shared_ptr<gDataSample>);
+	void AddRates();
+	void AddDoubles();
 
 	map<string, vector<gDataEntry>>		GetDataMap() {return DataMap;};
 	vector<gDataEntry>					GetTerritoryData(const string&);
 	string 								GetName()	{return name;};
-//	map<string, double> 				GetPopulation() {return population;};
-//	double								GetPopulation(const string&);
 	int									GetDayZero(const string&, const string&, int);
 
 	void Print(int);

@@ -27,13 +27,19 @@ vector<gDataEntry> gDataSample::GetTerritoryData(const string& territory) {
 void gDataSample::Print(int option = 0) {
 	cout << "---------- " << name << " ---------- " << endl;
 	std::map<string, vector<gDataEntry>>::iterator it = DataMap.begin();
+	gCard myCard;
+	myCard.ReadValues();
 	while(it != DataMap.end()) {
-		cout << "## " << it->first << " ##" << endl;
-		vector<gDataEntry> territory_data = it->second;
-		cout << "N. of entries " << territory_data.size() << endl;
-		for(auto& e:territory_data) {
-			e.Print(option);
-		}
+//		for(auto t:myCard.territories) {
+//			if(t==it->first) {
+				cout << "## " << it->first << " ##" << endl;
+				vector<gDataEntry> territory_data = it->second;
+				cout << "N. of entries " << territory_data.size() << endl;
+				for(auto& e:territory_data) {
+					e.Print(option);
+				}
+//			}
+//		}
  		it++;
 	}
 }
@@ -49,9 +55,9 @@ int gDataSample::GetDayZero(const string& territory, const string& what, int how
 	if(dit!=DataMap.end()) {
 		vector<gDataEntry> territory_data = dit->second; ///< Loading the data for "this territory"
 		for(auto& e:territory_data) { ///< Looping on the entries (one per day)
-			map<string, double> EntryMap = e.entryMap; ///< Loading the map with the values
-			eit = EntryMap.find(what);
-			if(eit != EntryMap.end()) { ///< "What" has been found
+			map<string, double> rawValues = e.rawValues; ///< Loading the map with the values
+			eit = rawValues.find(what);
+			if(eit != rawValues.end()) { ///< "What" has been found
 				if(first_day==0) first_day = e.day_of_the_year; ///< Recording "first" day of the data sample
 				if(eit->second>(double)howmany) { ///< got the first occurrence of "What" > "howmany"
 					day = e.day_of_the_year; ///< Recording the day of the year
@@ -76,32 +82,89 @@ void gDataSample::Append(shared_ptr<gDataSample> other) {
 	///< Appending data from the "other" gDataSample
 	map<string, vector<gDataEntry>>::iterator it;
 	map<string, vector<gDataEntry>> other_data_map = other->GetDataMap();
-		for(it=other_data_map.begin(); it!=other_data_map.end(); it++) {
-		DataMap.insert(std::pair<string, vector<gDataEntry>>(it->first, it->second));
+	string s;
+	for(it=other_data_map.begin(); it!=other_data_map.end(); it++) {
+		s = it->first;
+		///< Patch to add "ITA" territory of sample "Italy" to DataSample "Regioni" with sample name "regioni"
+		if(name=="Regioni"&&other->GetName()=="Italy") {
+			for(unsigned int i=0; i<it->second.size(); i++) {
+				it->second.at(i).sample = "regioni";
+				it->second.at(i).territory = "Italia";
+				s = "Italia";
+			}
+		}
+		DataMap.insert(std::pair<string, vector<gDataEntry>>(s, it->second));
 	}
-//	///< Appending the corresponding values of population
-//	map<string, double>::iterator jt;
-//	map<string, double> other_population = other->GetPopulation();
-//	for(jt=other_population.begin(); jt!=other_population.end(); jt++) {
-//		population.insert(std::pair<string, double>(jt->first, jt->second));
-//	}
 	return;
 }
 
-//double gDataSample::GetPopulation(const string& t) {
-//	map<string, double>::iterator it;
-//	it = population.find(t);
-////	if(t.find("Cesena")!=std::string::npos) {
-////		it = population.find("Forli-Cesena");
-////	} else {
-////		it = population.find(t);
-////	}
-//	if(it!=population.end()) {
-//		return it->second;
-//	}
-//	cout << "gDataSample::GetPopulation(const string&) --> could not find population for " << t << endl;
-//	return -1;
-//}
+void gDataSample::AddRates() {
+	///< This method fills the information about the rates (with respect the previous day)
+	map<string, vector<gDataEntry>>::iterator it;
+	double rate = 0.;
+	for(it=DataMap.begin(); it!=DataMap.end(); it++) {
+		vector<gDataEntry> entries = it->second;
+		for(unsigned int i=entries.size()-1; i>0; i--) {
+			gDataEntry this_entry, prev_entry;
+			this_entry = entries[i];
+			prev_entry = entries[i-1];
+			if( (this_entry.day_of_the_year-prev_entry.day_of_the_year) != 1) continue; ///< Previous day is not present
+			///< confirmed
+			if( (prev_entry.rawValues.at("confirmed") > 0) && (this_entry.rawValues.at("confirmed") >= 2.) ) {
+				rate = ( this_entry.rawValues.at("confirmed") - prev_entry.rawValues.at("confirmed") ) / ( prev_entry.rawValues.at("confirmed") );
+				entries[i].rates.at("confirmed") = rate;
+			}
+
+//			///< new_confirmed
+//			if( (prev_entry.rawValues.at("new_confirmed") > 0) && (this_entry.rawValues.at("new_confirmed") >= 0.) ) {
+//				rate = this_entry.rawValues.at("new_confirmed") / ( prev_entry.rawValues.at("new_confirmed") );
+//				entries[i].rates.at("new_confirmed") = rate;
+//			}
+			///< deceased
+			if( (prev_entry.rawValues.at("deceased") > 0) && (this_entry.rawValues.at("deceased") >= 2.) ) {
+				rate = ( this_entry.rawValues.at("deceased") - prev_entry.rawValues.at("deceased") ) / ( prev_entry.rawValues.at("deceased") );
+				entries[i].rates.at("deceased") = rate;
+			}
+//			///< new_deceased
+//			if( (prev_entry.rawValues.at("new_deceased") > 0) && (this_entry.rawValues.at("new_deceased") >= 0.) ) {
+//				rate = this_entry.rawValues.at("new_deceased") / ( prev_entry.rawValues.at("new_deceased") );
+//				entries[i].rates.at("new_deceased") = rate;
+//			}
+		}
+		it->second = entries;
+	}
+	return;
+}
+
+void gDataSample::AddDoubles() {
+	///< This method fills the information about the doubling times (days from the previous "half value"
+	map<string, vector<gDataEntry>>::iterator it;
+	double this_confirmed, this_deceased;
+	double prev_confirmed, prev_deceased;
+	for(it=DataMap.begin(); it!=DataMap.end(); it++) {
+		vector<gDataEntry> entries = it->second;
+		for(unsigned int i=entries.size()-1; i>1; i--) {
+			this_confirmed = entries[i].rawValues.at("confirmed");
+			this_deceased = entries[i].rawValues.at("deceased");
+			for(unsigned int j=i-1;j>0; j--) {
+				if( (entries[i].day_of_the_year-entries[j].day_of_the_year) < 0 ) continue; ///< Looking only backward
+				prev_confirmed = entries[j].rawValues.at("confirmed");
+				prev_deceased = entries[j].rawValues.at("deceased");
+				///< Finding the "first value" lower that half (and setting a threshold at 100.)
+				if( prev_confirmed<(this_confirmed/2.) && this_confirmed>=2. && isnan(entries[i].doubles.at("confirmed")) ) {
+					entries[i].doubles.at("confirmed") = 1./((double)entries[i].day_of_the_year-(double)entries[j].day_of_the_year);
+				}
+				if( prev_deceased<(this_deceased/2.) && this_deceased>=2. && isnan(entries[i].doubles.at("deceased")) ) {
+					entries[i].doubles.at("deceased") = 1./((double)entries[i].day_of_the_year-(double)entries[j].day_of_the_year);
+				}
+				///< Both have been filled -> break
+				if( !isnan(entries[i].doubles.at("confirmed")) && !isnan(entries[i].doubles.at("deceased")) ) break;
+			}
+		}
+		it->second = entries;
+	}
+	return;
+}
 
 gDataSample::~gDataSample() {
 	// TODO Auto-generated destructor stub

@@ -75,20 +75,20 @@ void gRootDB::FillWrite() {
 			population 				= entry.population;
 			date 			        = entry.date;
 			day_of_the_year         = entry.day_of_the_year;
-            confirmed               = entry.entryMap.at("confirmed");
-            new_confirmed           = entry.entryMap.at("new_confirmed");
-            actives                 = entry.entryMap.at("actives");
-            new_actives             = entry.entryMap.at("new_actives");
-            recovered               = entry.entryMap.at("recovered");
-            new_recovered           = entry.entryMap.at("new_recovered");
-            deceased                = entry.entryMap.at("deceased");
-            new_deceased            = entry.entryMap.at("new_deceased");
-            tests                   = entry.entryMap.at("tests");
-            new_tests               = entry.entryMap.at("new_tests");
-            hospitalized_symptoms   = entry.entryMap.at("hospitalized_symptoms");
-            hospitalized_intensive  = entry.entryMap.at("hospitalized_intensive");
-            hostpitalized_total     = entry.entryMap.at("hostpitalized_total");
-            home_isolation          = entry.entryMap.at("home_isolation");
+            confirmed               = entry.rawValues.at("confirmed");
+            new_confirmed           = entry.rawValues.at("new_confirmed");
+            actives                 = entry.rawValues.at("actives");
+            new_actives             = entry.rawValues.at("new_actives");
+            recovered               = entry.rawValues.at("recovered");
+            new_recovered           = entry.rawValues.at("new_recovered");
+            deceased                = entry.rawValues.at("deceased");
+            new_deceased            = entry.rawValues.at("new_deceased");
+            tests                   = entry.rawValues.at("tests");
+            new_tests               = entry.rawValues.at("new_tests");
+            hospitalized_symptoms   = entry.rawValues.at("hospitalized_symptoms");
+            hospitalized_intensive  = entry.rawValues.at("hospitalized_intensive");
+            hostpitalized_total     = entry.rawValues.at("hostpitalized_total");
+            home_isolation          = entry.rawValues.at("home_isolation");
 			tData->Fill();
 		}
 	}
@@ -102,20 +102,20 @@ gDataEntry gRootDB::FillEntry() {
 	entry.population                           = population               ;
 	entry.date                                 = date                     ;
 	entry.day_of_the_year                      = day_of_the_year          ;
-    entry.entryMap.at("confirmed")             = confirmed                ;
-    entry.entryMap.at("new_confirmed")         = new_confirmed            ;
-    entry.entryMap.at("actives")               = actives                  ;
-    entry.entryMap.at("new_actives")           = new_actives              ;
-    entry.entryMap.at("recovered")             = recovered                ;
-    entry.entryMap.at("new_recovered")         = new_recovered            ;
-    entry.entryMap.at("deceased")              = deceased                 ;
-    entry.entryMap.at("new_deceased")          = new_deceased             ;
-    entry.entryMap.at("tests")                 = tests                    ;
-    entry.entryMap.at("new_tests")             = new_tests                ;
-    entry.entryMap.at("hospitalized_symptoms") = hospitalized_symptoms    ;
-    entry.entryMap.at("hospitalized_intensive")= hospitalized_intensive   ;
-    entry.entryMap.at("hostpitalized_total")   = hostpitalized_total      ;
-    entry.entryMap.at("home_isolation")        = home_isolation           ;
+    entry.rawValues.at("confirmed")             = confirmed                ;
+    entry.rawValues.at("new_confirmed")         = new_confirmed            ;
+    entry.rawValues.at("actives")               = actives                  ;
+    entry.rawValues.at("new_actives")           = new_actives              ;
+    entry.rawValues.at("recovered")             = recovered                ;
+    entry.rawValues.at("new_recovered")         = new_recovered            ;
+    entry.rawValues.at("deceased")              = deceased                 ;
+    entry.rawValues.at("new_deceased")          = new_deceased             ;
+    entry.rawValues.at("tests")                 = tests                    ;
+    entry.rawValues.at("new_tests")             = new_tests                ;
+    entry.rawValues.at("hospitalized_symptoms") = hospitalized_symptoms    ;
+    entry.rawValues.at("hospitalized_intensive")= hospitalized_intensive   ;
+    entry.rawValues.at("hostpitalized_total")   = hostpitalized_total      ;
+    entry.rawValues.at("home_isolation")        = home_isolation           ;
     return entry;
 }
 
@@ -158,7 +158,7 @@ bool gRootDB::SetBranchesWrite() {
     tData->Branch("day_of_the_year"	, &day_of_the_year	, "day_of_the_year/I");
     tData->Branch("population"		, &population		, "population/D");
     map<string, double>::iterator it;
-    for(it=entry.entryMap.begin(); it!=entry.entryMap.end(); it++) {
+    for(it=entry.rawValues.begin(); it!=entry.rawValues.end(); it++) {
     	ostringstream type; type << it->first << "/D";
         if(it->first == "confirmed") {
         	tData->Branch(it->first.c_str(), &confirmed, type.str().c_str());

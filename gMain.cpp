@@ -9,10 +9,8 @@
 
 gMain::gMain() {
 	// TODO Auto-generated constructor stub
-	myDataReader 	= nullptr;
-	myRootManager 	= nullptr;
-	myPlotter 		= nullptr;
-	myCard.Reset();
+//	myRootManager 	= nullptr;
+	myCard.Init();
 }
 
 gMain::~gMain() {
@@ -23,21 +21,15 @@ bool gMain::Init() {
 	if(!myCard.ReadValues()) {
 		return false;
 	}
-
-	// < ---------------- ROOT INTERACTIVE App ------------------ >
-
-	if(!myCard.batch) myApp = new TApplication("myApp", 0, 0);
-
-	// < ----------------  ROOT MANAGER   ------------------ >
-
-	myRootManager = std::unique_ptr<gRootManager>(new gRootManager());
+	if(myCard.verbose) cout << "gMain::Init --> " << endl;
+//	// < ----------------  ROOT MANAGER   ------------------ >
+//
+//	myRootManager = std::unique_ptr<gRootManager>(new gRootManager());
 
 	// < ----------------   DATA READER   ------------------ >
 
 	myDataReader = std::unique_ptr<gDataReader>(new gDataReader(myCard));
-
 	myDataReader->ReadData();
-
 	DataSample= myDataReader->GetDataSample();
 
 	return true;
@@ -45,25 +37,40 @@ bool gMain::Init() {
 
 void gMain::Execute() {
 
+	if(myCard.verbose) cout << "gMain::Execute --> " << endl;
 	// < ----------------     ANALYZER    ------------------ >
-
-	myAnalyzer = std::unique_ptr<gAnalyzer>(new gAnalyzer(myCard));
-	myAnalyzer->SetDataSample(DataSample);
-	myAnalyzer->Analyze();
+	if(myCard.analyzer_flag) {
+		if(myCard.verbose) cout << "gMain::Execute --> Analyzer" << endl;
+		myAnalyzer = std::unique_ptr<gAnalyzer>(new gAnalyzer(myCard));
+		myAnalyzer->SetDataSample(DataSample);
+		myAnalyzer->Analyze();
+	}
 
 	// < ----------------      PLOTTER    ------------------ >
-
-	myPlotter = std::unique_ptr<gPlotter>(new gPlotter(myCard));
-	myPlotter->SetDataSample(DataSample);
-	myPlotter->CreateHistos();
+	if(myCard.plotter_flag) {
+		if(myCard.verbose) cout << "gMain::Execute --> Plotter" << endl;
+		myApp = new TApplication("myApp", 0, 0);
+		myPlotter = std::unique_ptr<gPlotter>(new gPlotter(myCard));
+		myPlotter->SetDataSample(DataSample);
+		myPlotter->CreateHistos();
+	}
 
 	return;
 }
 
 void gMain::Finish() {
 
-	myPlotter->Draw();
+	if(myCard.verbose) cout << "gMain::Execute --> Finish" << endl;
+	// < ----------------     ANALYZER    ------------------ >
+	if(myCard.analyzer_flag) {
+		myAnalyzer->ShowResults();
+	}
 
-	if(!myCard.batch) myApp->Run() ;
+	// < ----------------      PLOTTER    ------------------ >
+	if(myCard.plotter_flag) {
+		myPlotter->Draw();
+		myApp->Run();
+	}
+
 	return;
 }

@@ -23,8 +23,9 @@ void gDataReader::ReadData() {
 	} else {
 		FillDataFromCSV();
 	}
-
 	if(myCard.root_db_create) WriteToRootDB();
+	DataSample->AddRates();
+	DataSample->AddDoubles();
 }
 
 
@@ -52,12 +53,13 @@ void gDataReader::FillDataFromCSV() {
 	shared_ptr<gDataSample> Italy 		= ReadFromItalyCSV(italy_repo_file);
 	shared_ptr<gDataSample> Regioni 	= ReadFromItalyCSV(regioni_repo_file);
 	shared_ptr<gDataSample> Province 	= ReadFromItalyCSV(province_repo_file);
+	Regioni->Append(Italy); ///< Adding ITA sample to the one in Regioni
 	///< Merging all
 	DataSample = shared_ptr<gDataSample>(new gDataSample);
-	DataSample->Append(World);
-	DataSample->Append(Italy);
-	DataSample->Append(Regioni);
 	DataSample->Append(Province);
+	DataSample->Append(Regioni);
+	DataSample->Append(Italy);
+	DataSample->Append(World);
 	return;
 }
 
@@ -158,12 +160,12 @@ shared_ptr<gDataSample> gDataReader::ReadFromWorldCSV(const string& repo_dir) { 
     		for(auto& d:deceased) {
         		if(thisEntry.territory!=d.territory) continue;
         		if(thisEntry.day_of_the_year!=d.day_of_the_year) continue;
-        		thisEntry.entryMap.at("deceased") = d.entryMap.at("confirmed");
+        		thisEntry.rawValues.at("deceased") = d.rawValues.at("confirmed");
         	}
         	for(auto& r:recovered) {
         		if(thisEntry.territory!=r.territory) continue;
         		if(thisEntry.day_of_the_year!=r.day_of_the_year) continue;
-        		thisEntry.entryMap.at("recovered") = r.entryMap.at("confirmed");
+        		thisEntry.rawValues.at("recovered") = r.rawValues.at("confirmed");
         	}
         	thisEntry.EntryCorrection();		///< Correcting some territories names
         	territory = thisEntry.territory; 	///< Correcting some territories names
@@ -214,6 +216,7 @@ map<string, vector<gDataEntry>> gDataReader::ArrangeByTerritory(vector<gDataEntr
 }
 
 vector<gDataEntry> gDataReader::GroupEntries(vector<gDataEntry>& data) {
+	///< This method group entries from the same country (e.g. Virgin Island (US) with the mainland US)
 	vector<gDataEntry> grouped;
 	vector<bool> added;
 	for(unsigned int i=0; i<data.size(); i++) {
@@ -225,7 +228,7 @@ vector<gDataEntry> gDataReader::GroupEntries(vector<gDataEntry>& data) {
 		for(unsigned int j=i+1; j<data.size(); j++) {
 			if(added[j]) continue; ///< Not considering entries already added
 			if(data[j].day_of_the_year==entry.day_of_the_year) { ///< same day -> more than 1 entry
-				entry.Sum(data[j]);
+				entry.SumRaw(data[j]);
 				added[j] = "true";
 			}
 		}
@@ -242,10 +245,6 @@ void gDataReader::Sort(vector<gDataEntry>& data) {
 				gDataEntry tmp = data[i];
 				data[i] = data[j];
 				data[j] = tmp;
-//				gDataEntry tmp; tmp.Replace(data[i]);
-//				tmp.Replace(data[i]);
-//				data[i].Replace(data[j]);
-//				data[j].Replace(tmp);
 			}
 		}
 	}
@@ -263,32 +262,33 @@ void gDataReader::CompleteInfo(vector<gDataEntry>& data) {
 			cout << "gDataReader::CompleteInfo --> population for " <<  data[i].territory << " has not been found/added" << endl;
 		}
 
-		double actives 	 = data[i].entryMap.at("actives");
-		double confirmed = data[i].entryMap.at("confirmed");
-		double recovered = data[i].entryMap.at("recovered");
-		double deceased  = data[i].entryMap.at("deceased");
-		double tests	 = data[i].entryMap.at("tests");
+		double actives 	 = data[i].rawValues.at("actives");
+		double confirmed = data[i].rawValues.at("confirmed");
+		double recovered = data[i].rawValues.at("recovered");
+		double deceased  = data[i].rawValues.at("deceased");
+		double tests	 = data[i].rawValues.at("tests");
 
 		if( isnan(actives) && !isnan(confirmed) && !isnan(recovered) && !isnan(deceased)) {
-			data[i].entryMap.at("actives") = data[i].entryMap.at("confirmed") - (data[i].entryMap.at("recovered") + data[i].entryMap.at("deceased"));
+			data[i].rawValues.at("actives") = data[i].rawValues.at("confirmed") - (data[i].rawValues.at("recovered") + data[i].rawValues.at("deceased"));
 		}
-		if(data[i].entryMap.at("actives")<0) {
+		if(data[i].rawValues.at("actives")<0) {
 			cout << "gDataReader::CompleteInfo --> actives < 0 [" << endl;
 			data[i].Print(1);
 		}
-		actives 	 = data[i].entryMap.at("actives");
+		actives 	 = data[i].rawValues.at("actives");
 		if(i>0) {
-			if( isnan(data[i].entryMap.at("new_confirmed")) && !isnan(confirmed) )
-				data[i].entryMap.at("new_confirmed") 	= data[i].entryMap.at("confirmed") 	- data[i-1].entryMap.at("confirmed");
-			if( isnan(data[i].entryMap.at("new_actives")) && !isnan(actives) )
-				data[i].entryMap.at("new_actives") 	= data[i].entryMap.at("actives") 	- data[i-1].entryMap.at("actives");
-			if( isnan(data[i].entryMap.at("new_recovered")) && !isnan(recovered) )
-				data[i].entryMap.at("new_recovered")= data[i].entryMap.at("recovered") 	- data[i-1].entryMap.at("recovered");
-			if( isnan(data[i].entryMap.at("new_deceased")) && !isnan(deceased) )
-				data[i].entryMap.at("new_deceased") = data[i].entryMap.at("deceased") 	- data[i-1].entryMap.at("deceased");
-			if( isnan(data[i].entryMap.at("new_tests")) && !isnan(tests) )
-				data[i].entryMap.at("new_tests") 	= data[i].entryMap.at("tests") 		- data[i-1].entryMap.at("tests");
+			if( isnan(data[i].rawValues.at("new_confirmed")) && !isnan(confirmed) )
+				data[i].rawValues.at("new_confirmed") 	= data[i].rawValues.at("confirmed") - data[i-1].rawValues.at("confirmed");
+			if( isnan(data[i].rawValues.at("new_actives")) && !isnan(actives) )
+				data[i].rawValues.at("new_actives") 	= data[i].rawValues.at("actives") 	- data[i-1].rawValues.at("actives");
+			if( isnan(data[i].rawValues.at("new_recovered")) && !isnan(recovered) )
+				data[i].rawValues.at("new_recovered")= data[i].rawValues.at("recovered") 	- data[i-1].rawValues.at("recovered");
+			if( isnan(data[i].rawValues.at("new_deceased")) && !isnan(deceased) )
+				data[i].rawValues.at("new_deceased") = data[i].rawValues.at("deceased") 	- data[i-1].rawValues.at("deceased");
+			if( isnan(data[i].rawValues.at("new_tests")) && !isnan(tests) )
+				data[i].rawValues.at("new_tests") 	= data[i].rawValues.at("tests") 		- data[i-1].rawValues.at("tests");
 		}
+//		if(data[i].rawValues.at("new_confirmed")<0.) data[i].Print(10);
 		data[i].StandardizeDate();
 	}
 	return;

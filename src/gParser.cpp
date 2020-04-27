@@ -33,7 +33,6 @@ map<string, vector<gDataEntry>> gParser::LinesToEntries(const string& legend, ve
 		vector<string> values = LineToValues(line);
 		istringstream iss;
 		string territory = values[where_territory];
-		if(territory=="Diamond Princess") continue;
 		///< Check if more than one entry for this territory (e.g. Washington, US - New York, US ...)
 		///< In case remove it and save the data in a tmp vector --> then add to the new entry
 		tmp.clear();
@@ -47,11 +46,11 @@ map<string, vector<gDataEntry>> gParser::LinesToEntries(const string& legend, ve
 			gDataEntry thisEntry;
 			thisEntry.territory = territory;
 			thisEntry.date		= titles[iv];
-			thisEntry.day_of_the_year = thisEntry.DaysFromYearStart(thisEntry.date);
+			thisEntry.day_of_the_year = thisEntry.DaysFrom_1_1_2020(thisEntry.date);
 			iss.clear(); iss.str(values[iv]);
-	        iss >> thisEntry.entryMap.at("confirmed");
+	        iss >> thisEntry.rawValues.at("confirmed");
 	        for(auto& t:tmp) {
-	        	if(thisEntry.date==t.date) thisEntry.Sum(t);
+	        	if(thisEntry.date==t.date) thisEntry.SumRaw(t);
 	        }
 	        entries.push_back(thisEntry);
 		}

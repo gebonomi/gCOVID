@@ -1,39 +1,74 @@
 ########## gCOVID initialization card file #################
-#------------------ gPLOTTER SECTION --------------------------------------------------------------	#
-# [Legend (sample=world or italy)]
-# [territories: 	sample:list of territories (for sample italy, all italy = ITA) - no spaces " "	]
-# [variables:   	What to show (see INDEX SECTION) - no spaces " "								]
-# [day_0_what:		zero day to show from															]
-# [day_0_howmany:  	e.g. from 100 deceased; if what=="days" -> zero day is "howmany" from Jan. 1st	]
-# [var_or_terr:		= 1 --> group plots per variable (one canvas per variable) otherwise per terr.	]
-# [norm:			= 1 --> normalize variables to populatio (WARNING: it acts also for gANALYZER)	]
-# -------------------
-territories 		world:Italy,Spain,US,UK,France
-#territories 		italy:Lombardia,Veneto,Piemonte,Emilia-Romagna
-variables 			confirmed,deceased,new_deceased
-day_0_what      	deceased
-day_0_howmany   	100
-var_or_terr			1
-norm				0
-#------------------ gANALYZER SECTION -------------------------------------------------------------	#
-# [Legend
-# [sample: 			world, italy, regioni, province or ALL											]
-# [rank: 			rank territories for ... (e.g. recovered)										]
-# [pop_limit: 		limit the ranking to territories with population < pop_limit					]
-# [nstop: 			stop listing/ranking after nstop territories									]
-# -------------------
-sample				world
-rank				deceased
-pop_limit			1.e6
-nstop				10
 #------------------ gREADER SECTION --------------------------------------------------------------- #
 # [Legend]
 # [root_db_read: 	= 1 -> reads from the ROOT DB, otherwise reads from git/CSV + creates ROOT DB	]
-# [batch:        	= 1 -> only analysis and no plots												]
 # -------------------
 root_db_read		1
 verbose				0
-batch				1
+#------------------ gPLOTTER SECTION --------------------------------------------------------------	#
+# [Legend (sample=world or italy)]
+# [plotter_flag:	= 1 -> show plots																]
+# [territories: 	sample:list of territories (for sample italy, all italy = ITA) - no spaces " "	]
+# [variables:   	What to show (see INDEX SECTION) - no spaces " "								]
+# [plotter_norm:	= 1 --> normalize variables to population										]
+# [day_0_what:		zero day to show from															]
+# [day_0_howmany:  	e.g. from 100 deceased; if what=="days" -> zero day is "howmany" from Jan. 1st	]
+# [var_or_terr:		= 1 --> group plots per variable (one canvas per variable) otherwise per terr.	]
+# [show_raw			show raw values histograms														]
+# [show_rates		show rate histograms															]
+# [show_doubling	show 1./doubling time histograms												]
+# -------------------
+plotter_flag		1
+territories 		world:Italy,France,US,Spain,UK,Sweden
+#territories 		world:Mexico,Brazil,Russia,Japan,Finland
+#territories 		italy:ITA,Lombardia,Piemonte
+#territories 		italy:Brescia,Bergamo,Cremona,Torino,Milano
+variables 			confirmed,new_confirmed,deceased,new_deceased,actives,new_actives,hospitalized_intensive,hostpitalized_total,tests
+plotter_norm		1
+day_0_what      	deceased
+day_0_howmany   	100
+var_or_terr			1
+show_raw			1
+show_rates			1
+show_doubling		1
+#------------------ gANALYZER SECTION -------------------------------------------------------------	#
+# [Legend
+# [analyzer_flag:   = 1 -> perform analyses																]
+# [sample: 			world, italy, regioni, province or ALL											]
+# [pop_limit: 		limit the ranking to territories with population < pop_limit					]
+# [date_min: 		limit the analysis to a given time interval (date_min < date < date_max			]
+# [date_max: 			"		"		"		"		"		"		"		"		"			]
+# [rank_n_stop: 	stop listing/ranking after nsrank_n_stoptop territories							]
+# [rank_raw_flag: 	= 1 -> rank territories per "raw" variable (see rank_raw_what)					]
+# [rank_raw_what: 	rank territories per "rank_raw_what" variable									]
+# [rank_raw_norm:	= 1 --> normalize to population													]
+# [rank_rate_flag: 	= 1 -> rank territories per "increase rate" (see rank_rate_what)				]
+# [rank_rate_what: 	rank territories per "rank_rate_what" variable increase rate					]
+# [rank_rate_thrs:	only for territories with rank_rate_what > rank_rate_thrs						]
+# [rank_double_flag:= 1 -> rank territories per "doubling time" (see rank_doubles_what)			]
+# [rank_double_what:rank territories per "rank_double_what" variable 1./doubling time				]
+# [rank_double_thrs:only for territories with rank_double_what > rank_double_thrs					]
+# -------------------
+analyzer_flag		1
+sample				world
+pop_limit			1.e5
+date_min			26/04/2020
+date_max			31/12/2021
+rank_n_stop			35
+# --- ranking raw
+rank_raw_flag		1
+rank_raw_what		deceased
+rank_raw_norm		0
+# --- ranking rate
+rank_rate_flag		1
+rank_rate_what		confirmed
+rank_rate_lim		1000
+rank_rate_thrs		0.02
+# --- ranking 1./doubling time
+rank_double_flag	0
+rank_double_what	deceased
+rank_double_lim		100
+rank_double_thrs	0.05
 #------------------ INDEX SECTION -----------------------------------------------------------------	#
 #
 # RAW VARIABLES 

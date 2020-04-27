@@ -22,7 +22,28 @@ void gDataEntry::Init() {
 	population				= std::numeric_limits<double>::quiet_NaN();
 	date 					= "";
 	day_of_the_year         = -1; ///< 0-365 [2020 has 366 days]
-	//	confirmed; 			///< This is the cumulative of the positive cases
+    rawValues.insert(std::pair<string, double>("confirmed",		        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("new_confirmed",	        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("actives",		        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("new_actives",	        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("recovered",		        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("new_recovered",	        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("deceased",		        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("new_deceased",	        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("tests",			        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("new_tests",		        std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("hospitalized_symptoms",	std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("hospitalized_intensive",std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("hostpitalized_total",	std::numeric_limits<double>::quiet_NaN()));
+    rawValues.insert(std::pair<string, double>("home_isolation",	    std::numeric_limits<double>::quiet_NaN()));
+
+    rates.insert(std::pair<string, double>("confirmed",		        	std::numeric_limits<double>::quiet_NaN()));
+    rates.insert(std::pair<string, double>("deceased",		        	std::numeric_limits<double>::quiet_NaN()));
+
+    doubles.insert(std::pair<string, double>("confirmed",		        std::numeric_limits<double>::quiet_NaN()));
+    doubles.insert(std::pair<string, double>("deceased",		        std::numeric_limits<double>::quiet_NaN()));
+
+    //	confirmed; 			///< This is the cumulative of the positive cases
 	//	new_confirmed; 		///< This is the daily (tested) positive cases
 	//	actives;   			///< This is the cumulative of the active cases (confirmed - deceased - recovered)
 	//	new_actives;		///< This is the daily increase in active cases (new_confirmed - new_deceased - new_recovered)
@@ -32,20 +53,6 @@ void gDataEntry::Init() {
 	//	new_deceased;		///< This is the daily deceased cases
 	//	tests;				///< This is the cumulative of the performed tests
 	//	new_tests;			///< This is the daily new tests
-    entryMap.insert(std::pair<string, double>("confirmed",		        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("new_confirmed",	        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("actives",		        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("new_actives",	        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("recovered",		        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("new_recovered",	        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("deceased",		        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("new_deceased",	        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("tests",			        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("new_tests",		        std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("hospitalized_symptoms",	std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("hospitalized_intensive",	std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("hostpitalized_total",	std::numeric_limits<double>::quiet_NaN()));
-    entryMap.insert(std::pair<string, double>("home_isolation",	        std::numeric_limits<double>::quiet_NaN()));
 }
 
 void gDataEntry::FillValues(const string& name, const string& legend, const string& line) {
@@ -61,41 +68,41 @@ void gDataEntry::FillValuesItaly(const string& legend, const string& line) {
     istringstream s;
 	istringstream iss_line(line);
 	getline(iss_line, date, ',');           ///< data
-    day_of_the_year = DaysFromYearStart(date);
+    day_of_the_year = DaysFrom_1_1_2020(date);
 	getline(iss_line, territory, ',');         ///< stato,
 	getline(iss_line, dummy, ',');          ///< ricoverati_con_sintomi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("hospitalized_symptoms");
+        s >> rawValues.at("hospitalized_symptoms");
 	getline(iss_line, dummy, ',');          ///< terapia_intensiva,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("hospitalized_intensive");
+        s >> rawValues.at("hospitalized_intensive");
 	getline(iss_line, dummy, ',');          ///< totale_ospedalizzati,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("hostpitalized_total");
+        s >> rawValues.at("hostpitalized_total");
 	getline(iss_line, dummy, ',');          ///< isolamento_domiciliare,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("home_isolation");
+        s >> rawValues.at("home_isolation");
 	getline(iss_line, dummy, ',');          ///< totale_positivi	,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("actives");
+        s >> rawValues.at("actives");
     getline(iss_line, dummy, ',');          ///< variazione_totale_positivi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("new_actives");
+        s >> rawValues.at("new_actives");
     getline(iss_line, dummy, ',');          ///< nuovi_positivi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("new_confirmed");
+        s >> rawValues.at("new_confirmed");
     getline(iss_line, dummy, ',');          ///< dimessi_guariti,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("recovered");
+        s >> rawValues.at("recovered");
 	getline(iss_line, dummy, ',');          ///< deceduti,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("deceased");
+        s >> rawValues.at("deceased");
 	getline(iss_line, dummy, ',');          ///< totale_casi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("confirmed");
+        s >> rawValues.at("confirmed");
 	getline(iss_line, dummy, ',');          ///< tamponi
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("tests");
+        s >> rawValues.at("tests");
     return;
 }
 
@@ -106,7 +113,7 @@ void gDataEntry::FillValuesRegioni(const string& legend, const string& line) {
     istringstream s;
 	istringstream iss_line(line);
 	getline(iss_line, date, ',');		///< data,
-    day_of_the_year = DaysFromYearStart(date);
+    day_of_the_year = DaysFrom_1_1_2020(date);
 	getline(iss_line, dummy, ',');		///< stato,
 	getline(iss_line, dummy, ',');		///< codice regione
 	getline(iss_line, territory, ',');		///< denominazione_regione,
@@ -114,37 +121,37 @@ void gDataEntry::FillValuesRegioni(const string& legend, const string& line) {
 	getline(iss_line, dummy, ',');		///< long,
 	getline(iss_line, dummy, ',');		///< ricoverati_con_sintomi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("hospitalized_symptoms");
+        s >> rawValues.at("hospitalized_symptoms");
 	getline(iss_line, dummy, ',');		///< terapia_intensiva,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("hospitalized_intensive");
+        s >> rawValues.at("hospitalized_intensive");
 	getline(iss_line, dummy, ',');		///< totale_ospedalizzati,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("hostpitalized_total");
+        s >> rawValues.at("hostpitalized_total");
 	getline(iss_line, dummy, ',');		///< isolamento_domiciliare,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("home_isolation");
+        s >> rawValues.at("home_isolation");
     getline(iss_line, dummy, ',');          ///< totale_positivi	,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("actives");
+        s >> rawValues.at("actives");
     getline(iss_line, dummy, ',');          ///< variazione_totale_positivi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("new_actives");
+        s >> rawValues.at("new_actives");
     getline(iss_line, dummy, ',');          ///< nuovi_positivi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("new_confirmed");
+        s >> rawValues.at("new_confirmed");
     getline(iss_line, dummy, ',');          ///< dimessi_guariti,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("recovered");
+        s >> rawValues.at("recovered");
     getline(iss_line, dummy, ',');          ///< deceduti,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("deceased");
+        s >> rawValues.at("deceased");
     getline(iss_line, dummy, ',');          ///< totale_casi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("confirmed");
+        s >> rawValues.at("confirmed");
     getline(iss_line, dummy, ',');          ///< tamponi
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("tests");
+        s >> rawValues.at("tests");
     return;
 }
 
@@ -155,7 +162,7 @@ void gDataEntry::FillValuesProvince(const string& legend, const string& line) {
     istringstream s;
 	istringstream iss_line(line);
 	getline(iss_line, date, ',');		///< data,
-    day_of_the_year = DaysFromYearStart(date);
+    day_of_the_year = DaysFrom_1_1_2020(date);
 	getline(iss_line, dummy, ',');		///< stato,
 	getline(iss_line, dummy, ',');		///< codice regione
 	getline(iss_line, dummy, ',');		///< denominazione_regione,
@@ -166,7 +173,7 @@ void gDataEntry::FillValuesProvince(const string& legend, const string& line) {
 	getline(iss_line, dummy, ',');		///< long,
 	getline(iss_line, dummy, ',');      ///< totale_casi,
         s.clear(); s.str(dummy.c_str());
-        s >> entryMap.at("confirmed");
+        s >> rawValues.at("confirmed");
     if(territory.find("Cesena")!=std::string::npos) { ///< Correcting for accent
     	territory = "Forli-Cesena";
     }
@@ -175,29 +182,26 @@ void gDataEntry::FillValuesProvince(const string& legend, const string& line) {
 
 void gDataEntry::Print(int option = 0) {
 	map<string, double>::iterator it;
-    double confirmed                   = entryMap.at("confirmed");
-    double new_confirmed               = entryMap.at("new_confirmed");
-    double actives                     = entryMap.at("actives");
-    double new_actives                 = entryMap.at("new_actives");
-    double recovered                   = entryMap.at("recovered");
-//    double new_recovered               = entryMap.at("new_recovered");
-    double deceased                    = entryMap.at("deceased");
-    double new_deceased                = entryMap.at("new_deceased");
-    double tests                       = entryMap.at("tests");
-//    double new_tests                   = entryMap.at("new_tests");
-//    double hospitalized_symptoms       = entryMap.at("hospitalized_symptoms");
-//    double hospitalized_intensive      = entryMap.at("hospitalized_intensive");
-//    double hostpitalized_total         = entryMap.at("hostpitalized_total");
-//    double home_isolation              = entryMap.at("home_isolation");
+    double confirmed                   = rawValues.at("confirmed");
+    double new_confirmed               = rawValues.at("new_confirmed");
+    double actives                     = rawValues.at("actives");
+    double new_actives                 = rawValues.at("new_actives");
+    double recovered                   = rawValues.at("recovered");
+//    double new_recovered               = rawValues.at("new_recovered");
+    double deceased                    = rawValues.at("deceased");
+    double new_deceased                = rawValues.at("new_deceased");
+    double tests                       = rawValues.at("tests");
+//    double new_tests                   = rawValues.at("new_tests");
+//    double hospitalized_symptoms       = rawValues.at("hospitalized_symptoms");
+//    double hospitalized_intensive      = rawValues.at("hospitalized_intensive");
+//    double hostpitalized_total         = rawValues.at("hostpitalized_total");
+//    double home_isolation              = rawValues.at("home_isolation");
 
 	switch(option) {
-	   case 0: ///< everything - default
-            cout << "date 					" << date 					<< endl;
-            cout << "territory 			    " << territory 				<< endl;
-			cout << "day_of_the_year        " << day_of_the_year        << endl;
-			for(it=entryMap.begin(); it!=entryMap.end(); it++) {
-				cout << it->first << " \t\t " << it->second << endl;
-			}
+	   case 0: ///< short - default
+		   cout << sample  << ": ";
+           cout << territory << " (" << date << ") ";
+           cout << "confirmed " << rawValues.at("confirmed") << endl;
 			break;
        case 1: ///< short with data in the DB
            cout << territory;
@@ -209,33 +213,69 @@ void gDataEntry::Print(int option = 0) {
            cout << " (" 			<< (deceased/population)*1.e6 << ")";
            cout << " recovered " 	<< recovered;
            cout << " (" 			<< (recovered/population)*1.e6 << ")";
-           if(entryMap.at("tests")>0) cout << " tests " << tests;
+           if(rawValues.at("tests")>0) cout << " tests " << tests;
            cout << endl;
-       case 2: ///< Formatted for gAnalyzer
+           break;
+       case 10: ///< Optimized for gAnalyzer (show raw rank)
     	   cout << left  << setw(11) << setfill(' ')  << territory.substr(0,10);
     	   cout << left  << setw(9)  << setfill(' ')  << date;
     	   ///< Confirmed
-    	   cout << right << setw(10) << setfill(' ')  << confirmed
+    	   cout << right << setw(10) << setfill(' ')  << fixed << setprecision(0) << confirmed
         			<< left  << " ("
-    				<< right << setw(6)  <<  setfill(' ') << fixed << setprecision(0) << (confirmed/population)*1.e6 << ")";
+    				<< right << setw(6)  <<  setfill(' ') << (confirmed/population)*1.e6 << ")";
     	   ///< Deceased
     	   cout << right << setw(8) << setfill(' ')  << deceased
         			<< left  << " ("
-    				<< right << setw(5)  <<  setfill(' ') << fixed << setprecision(0) << (deceased/population)*1.e6 << ")";
+    				<< right << setw(5)  <<  setfill(' ') << (deceased/population)*1.e6 << ")";
     	   ///< Actives
     	   cout << right << setw(9) << setfill(' ')  << actives;
     	   ///< new_confirmed
     	   cout << right << setw(7) << setfill(' ')  << new_confirmed;
-//    	   cout	<< left  << " ("
-//    			<< right << setw(5)  <<  setfill(' ') << fixed << setprecision(0) << (new_confirmed/population)*1.e6 << ")";
     	   ///< new_deceased
     	   cout << right << setw(5) << setfill(' ')  << new_deceased;
-//    	   cout	<< left  << " ("
-//    			<< right << setw(5)  <<  setfill(' ') << fixed << setprecision(0) << (new_deceased/population)*1.e6 << ")";
     	   ///< new_actives
     	   cout << right << setw(6) << setfill(' ')  << new_actives;
+    	   ///< pop (in milions)
+    	   cout << right << setw(8) << setfill(' ')  << setprecision(1) << population/1.e6;
     	   cout << endl;
-
+    	   break;
+       case 20: ///< Optimized for gAnalyzer (show rate rank)
+    	   cout << left  << setw(11) << setfill(' ')  << territory.substr(0,10);
+    	   cout << left  << setw(9)  << setfill(' ')  << date;
+    	   ///< Confirmed
+    	   cout << right << setw(10) << setfill(' ')  << fixed << setprecision(0) << confirmed
+        			<< left  << " ("
+    				<< right << setw(4)  <<  setfill(' ') << fixed << setprecision(1) << rates.at("confirmed")*100. << "\%)";
+    	   ///< Deceased
+    	   cout << right << setw(8) << setfill(' ')  << fixed << setprecision(0) << deceased
+        			<< left  << " ("
+    				<< right << setw(4)  <<  setfill(' ') << fixed << setprecision(1) << rates.at("deceased")*100. << "%)";
+    	   ///< new_confirmed
+    	   cout << right << setw(7) << setfill(' ')  << fixed << setprecision(0) << new_confirmed;
+    	   ///< new_deceased
+    	   cout << right << setw(5) << setfill(' ')  << new_deceased;
+    	   ///< pop (in milions)
+    	   cout << right << setw(8) << setfill(' ')  << setprecision(1) << population/1.e6;
+    	   cout << endl;
+    	   break;
+       case 30: ///< Optimized for gAnalyzer (show 1./doubling time rank)
+    	   cout << left  << setw(11) << setfill(' ')  << territory.substr(0,10);
+    	   cout << left  << setw(9)  << setfill(' ')  << date;
+    	   ///< Confirmed
+    	   cout << right << setw(10) << setfill(' ')  << fixed << setprecision(0) << confirmed
+        			<< left  << " ("
+    				<< right << setw(4)  <<  setfill(' ') << fixed << setprecision(2) << doubles.at("confirmed") << ")";
+    	   ///< Deceased
+    	   cout << right << setw(8) << setfill(' ')  << fixed << setprecision(0) << deceased
+        			<< left  << " ("
+    				<< right << setw(4)  <<  setfill(' ') << fixed << setprecision(2) << doubles.at("deceased") << ")";
+    	   ///< new_confirmed
+    	   cout << right << setw(7) << setfill(' ')  << fixed << setprecision(0) << new_confirmed;
+    	   ///< new_deceased
+    	   cout << right << setw(5) << setfill(' ')  << new_deceased;
+    	   ///< pop (in milions)
+    	   cout << right << setw(8) << setfill(' ')  << setprecision(1) << population/1.e6;
+    	   cout << endl;
     	   break;
 	}
 }
@@ -286,7 +326,7 @@ time_t gDataEntry::DateStringToTimeT(const string& date) {
     return mktime(timeinfo);
 }
 
-int gDataEntry::DaysFromYearStart(const string& date) {
+int gDataEntry::DaysFrom_1_1_2020(const string& date) {
 	time_t entry_time = DateStringToTimeT(date);
 	time_t year_start = DateStringToTimeT("2020-01-01 00:00:00");
 
@@ -348,27 +388,35 @@ void gDataEntry::EntryCorrection() {
 	return;
 }
 
-void gDataEntry::Sum(const gDataEntry& other) {
+void gDataEntry::SumRaw(const gDataEntry& other) {
 	///< Checking that we are indeed adding entries of the same territory and date
     if(territory!=other.territory) {
-        cout << "gDataEntry::Sum -> trying to sum entries of different territories [" << territory << ", " << other.territory << "]" << endl;
+        cout << "gDataEntry::SumRaw -> trying to sum entries of different territories [" << territory << ", " << other.territory << "]" << endl;
     }
     if(day_of_the_year!=other.day_of_the_year) {
-        cout << "gDataEntry::Sum -> trying to sum entries of different days [" << date << ", " << other.date << "]" << endl;
+        cout << "gDataEntry::SumRaw -> trying to sum entries of different days [" << date << ", " << other.date << "]" << endl;
     }
     map<string, double>::iterator it;
-    for(it=entryMap.begin(); it!=entryMap.end(); it++) {
-        if(it->first=="day_of_the_year") continue;
-        if( isnan(it->second) || isnan(other.entryMap.at(it->first)) ) continue;
-        it->second += other.entryMap.at(it->first);
+    for(it=rawValues.begin(); it!=rawValues.end(); it++) {
+        if( isnan(it->second) || isnan(other.rawValues.at(it->first)) ) continue;
+        it->second += other.rawValues.at(it->first);
     }
     return;
 }
 
-void gDataEntry::Replace(const gDataEntry& other) {
-	date					 = other.date;
-	territory				 = other.territory;
-	day_of_the_year			 = other.day_of_the_year;
-	entryMap				 = other.entryMap;
+void gDataEntry::AddRates(const gDataEntry& other) {
+	///< Adding the info about the increase/decrease rates
+	///< Checking that we are indeed adding entries of the same territory and date
+    if(territory!=other.territory) {
+        cout << "gDataEntry::AddRates -> trying to sum entries of different territories [" << territory << ", " << other.territory << "]" << endl;
+    }
+    if(day_of_the_year!=other.day_of_the_year) {
+        cout << "gDataEntry::AddRates -> trying to sum entries of different days [" << date << ", " << other.date << "]" << endl;
+    }
+    map<string, double>::iterator it;
+    for(it=rates.begin(); it!=rates.end(); it++) {
+        if( isnan(other.rates.at(it->first)) ) continue;
+        it->second += other.rates.at(it->first);
+    }
     return;
 }

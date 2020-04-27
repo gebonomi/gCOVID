@@ -15,37 +15,62 @@
 class gCard {
 public:
 	gCard();
-	void Reset();
+	void Init();
 	bool ReadValues();
 	void Print();
 	virtual ~gCard();
 
 
 	bool   			isCard;
-	vector<string> 	territories;
-	vector<string> 	variables;
+	///< General flags
+	bool   			verbose;
+	bool   			root_db_read;
+	bool   			root_db_create;
 	bool   			italy;
 	bool   			world;
+	///< Plotter flags
+	bool   			plotter_flag;
+	vector<string> 	territories;
+	vector<string> 	variables;
 	string 			day_zero_what;
 	int	   			day_zero_howmany;
 	bool   			var_or_terr;
-	int    			norm;
-	bool   			verbose;
-	bool   			batch;
-	bool   			root_db_read;
-	bool   			root_db_create;
+	bool    		plotter_norm;
+	bool			show_raw;
+	bool			show_rates;
+	bool			show_doubling;
+	///< Analyzer flags
+	bool			analyzer_flag;
 	string 			sample;
-	string 			rank;
 	double			pop_limit;
-	int				nstop;
+	int				day_min;
+	int				day_max;
+	int				rank_n_stop;
+
+	bool			rank_raw_flag;
+	string 			rank_raw_what;
+	bool			rank_raw_norm;
+
+	bool			rank_rate_flag;
+	string 			rank_rate_what;
+	int				rank_rate_lim;
+	double			rank_rate_thrs;
+
+	bool			rank_double_flag;
+	string 			rank_double_what;
+	int				rank_double_lim;
+	double			rank_double_thrs;
 
 private:
 	string filename = "gCOVID.card";
+	vector<string> province;
+
 	bool SanityCheck();
 	void DecodeTerritories(const string&);
 	void DecodeVariables(const string&);
 	void SetProvince();
-	vector<string> province;
+	time_t 	DateStringToTimeT(const string&);
+	int  	DaysFrom_1_1_2020(const string&);
 };
 
 #endif /* INCLUDE_GCARD_H_ */
