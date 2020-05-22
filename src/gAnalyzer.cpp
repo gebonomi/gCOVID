@@ -20,9 +20,9 @@ void gAnalyzer::Analyze() {
  		cout << "gAnalyzer::Analyze --> DataSample is empty " << endl;
  		return;
  	}
- 	if(myCard.verbose) cout << "gAnalyzer::Analyze --> ThroughData " << endl;
+ 	if(myCard.verbose) cout << "   gAnalyzer::Analyze --> ThroughData " << endl;
  	ThroughData();
- 	if(myCard.verbose) cout << "gAnalyzer::Analyze --> Ordering " << endl;
+ 	if(myCard.verbose) cout << "   gAnalyzer::Analyze --> Ordering " << endl;
 	if(myCard.rank_raw_flag) 	OrderRawBy();
 	if(myCard.rank_rate_flag) 	OrderRateBy();
 	if(myCard.rank_double_flag) OrderDoubleBy();
@@ -30,10 +30,14 @@ void gAnalyzer::Analyze() {
 }
 
 void gAnalyzer::ShowResults() {
- 	if(myCard.verbose) cout << "gAnalyzer::ShowResults --> " << endl;
+ 	if(myCard.verbose) cout << "   gAnalyzer::ShowResults --> " << endl;
 	if(myCard.rank_raw_flag) 	ShowRankingRaw();
 	if(myCard.rank_rate_flag) 	ShowRankingRate();
 	if(myCard.rank_double_flag) ShowRankingDouble();
+	std::sort(RankingDayZero.begin(), RankingDayZero.end(), SortByDay);
+	for(auto& e:RankingDayZero) {
+		if(e.sample=="world"&&e.day_of_the_year!=-1) e.Print(99);
+	}
 	return;
 }
 
@@ -133,7 +137,7 @@ void gAnalyzer::ShowRankingDouble() {
 
 
 void gAnalyzer::OrderRawBy() {
- 	if(myCard.verbose) cout << "gAnalyzer::OrderRawBy --> " << endl;
+ 	if(myCard.verbose) cout << "      gAnalyzer::OrderRawBy --> " << endl;
 	///< This method order the vector of RankingRaw with respects to the "myCard.rank_raw_what"
  	if(RankingRaw.size()<2) {
  		cout << "gAnalyzer::OrderRawBy --> RankingRaw.size() == " << RankingRaw.size() << endl;
@@ -151,7 +155,7 @@ void gAnalyzer::OrderRawBy() {
 }
 
 void gAnalyzer::OrderRateBy() {
- 	if(myCard.verbose) cout << "gAnalyzer::OrderRateBy --> " << endl;
+ 	if(myCard.verbose) cout << "      gAnalyzer::OrderRateBy --> " << endl;
 	///< This method order the vector of RankingRate with respects to the "myCard.rank_rate_what"
  	if(RankingRate.size()<2) {
  		cout << "gAnalyzer::OrderRateBy --> RankingRate.size() == " << RankingRate.size() << endl;
@@ -168,7 +172,7 @@ void gAnalyzer::OrderRateBy() {
 }
 
 void gAnalyzer::OrderDoubleBy() {
- 	if(myCard.verbose) cout << "gAnalyzer::OrderDoubleBy --> " << endl;
+ 	if(myCard.verbose) cout << "      gAnalyzer::OrderDoubleBy --> " << endl;
 	///< This method order the vector of RankingDouble with respects to the "myCard.rank_double_what"
  	if(RankingDouble.size()<2) {
  		cout << "gAnalyzer::OrderDoubleBy --> RankingDouble.size() == " << RankingDouble.size() << endl;
@@ -193,6 +197,8 @@ void gAnalyzer::ThroughData() {
 	map<string, vector<gDataEntry>> dataMap = DataSample->GetDataMap();
 	for(auto it = dataMap.begin(); it!=dataMap.end(); it++) {
 		vector<gDataEntry> entries = it->second;
+		t = it->first;
+		RankingDayZero.push_back(DataSample->GetDayZeroEntry(t, myCard.day_zero_what, myCard.day_zero_howmany));
 		for(auto i=0; i<entries.size(); i++) {
 			if(entries[i].day_of_the_year<myCard.day_min+1 || entries[i].day_of_the_year>myCard.day_max+1) continue; ///< Filtering by date
 			///< ----------------------------------------------------------------
@@ -204,7 +210,7 @@ void gAnalyzer::ThroughData() {
 				if(entries[i].doubles.at(myCard.rank_double_what)>myCard.rank_double_thrs) RankingDouble.push_back(entries[i]);
 			}
 			///< ----------------------------------------------------------------
-			t = entries[i].territory;
+//			t = entries[i].territory;
 			auto jt = HigherEntryMap.find(t);
 			if(jt!=HigherEntryMap.end()) {
 				double v1 = jt->second.rawValues.at(myCard.rank_raw_what);

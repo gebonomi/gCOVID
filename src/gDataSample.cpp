@@ -47,8 +47,22 @@ void gDataSample::Print(int option = 0) {
 int gDataSample::GetDayZero(const string& territory, const string& what, int howmany) {
 //	///< This method returns the day (from start of the year) in which the "what" has reached the "howmany" threshold
 //	///< For example when the "new_recovered" reached 1000
-	int first_day = 0;
 	int day = -1;
+	if(what=="days") return howmany; ///< Fixing the same "day" for all samples
+	gDataEntry day_zero_entry = GetDayZeroEntry(territory, what, howmany);
+	day = day_zero_entry.day_of_the_year;
+	if(day==-1) {
+		cout << "gDataSample::GetDayZero --> Could not find the day in which " << what << " is greater than " << howmany;
+		cout << " for " << territory << endl;
+		return 0; ///< 0 = January 1st 2020
+	}
+	return day;
+}
+
+gDataEntry gDataSample::GetDayZeroEntry(const string& territory, const string& what, int howmany) {
+//	///< This method returns the day (from start of the year) in which the "what" has reached the "howmany" threshold
+//	///< For example when the "new_recovered" reached 1000
+	gDataEntry day_zero_entry;
 	map<string, vector<gDataEntry>>::iterator dit;
 	map<string, double>::iterator eit;
 	dit = DataMap.find(territory);
@@ -58,24 +72,17 @@ int gDataSample::GetDayZero(const string& territory, const string& what, int how
 			map<string, double> rawValues = e.rawValues; ///< Loading the map with the values
 			eit = rawValues.find(what);
 			if(eit != rawValues.end()) { ///< "What" has been found
-				if(first_day==0) first_day = e.day_of_the_year; ///< Recording "first" day of the data sample
 				if(eit->second>(double)howmany) { ///< got the first occurrence of "What" > "howmany"
-					day = e.day_of_the_year; ///< Recording the day of the year
+					day_zero_entry = e; ///< Recording the entry
 					break; ///< This is done -> exit from the entries loop
 				}
 			}
 		}
 	} else {
 		cout << "gDataSample::GetDayZero --> Could not find territory " << territory << endl;
-		return 0;
+		return day_zero_entry;
 	}
-	if(day==-1&&what=="days") day = howmany; ///< Fixing the same "day" for all samples
-	if(day==-1) {
-		cout << "gDataSample::GetDayZero --> Could not find the day in which " << what << " is greater than " << howmany;
-		cout << " for " << territory << endl;
-		return first_day;
-	}
-	return day;
+	return day_zero_entry;
 }
 
 void gDataSample::Append(shared_ptr<gDataSample> other) {

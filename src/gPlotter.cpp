@@ -48,7 +48,8 @@ void gPlotter::AddRawValuesHistos() {
 			double scale = 1.;
 			vector<double> x, ex, y, ey;
 			scale = 1.;
-			for(auto& e:entries) {
+			for(unsigned int i=0; i<entries.size(); i++) {
+				gDataEntry e = entries[i];
 				if(myCard.plotter_norm==1) {
 					scale = 1.e6/e.population;
 					if(isnan(scale)) {
@@ -74,7 +75,7 @@ void gPlotter::AddRawValuesHistos() {
 			these_graphs.push_back(ToGraph(t, v, x, ex, y, ey)); ///< territory as name, variable as title
 		}
 		if(these_histos.size()==0 || these_graphs.size()==0) {
-			cout << "gPlotter::AddRawValuesHistos --> these_histos.size()==0 || these_graphs.size()==0) for [" << a << "]" << endl;
+			cout << "gPlotter::AddRawValuesHistos --> these_histos.size()==0 || these_graphs.size()==0 ) for [" << a << "]" << endl;
 			continue;
 		}
 		HistoMap.insert(std::pair<string, vector<shared_ptr<TH2D>>>(a,these_histos));
@@ -239,8 +240,14 @@ shared_ptr<TGraphErrors> gPlotter::ToGraph(const string& territory, const string
     g->SetMarkerStyle(20);
     ///< Setting "territory" as name and "variable" as title
     g->SetNameTitle(territory.c_str(), variable.c_str());
-	if(myCard.var_or_terr) g->SetMarkerColor(palette.find(territory)->second);
-	if(!myCard.var_or_terr) g->SetMarkerColor(palette.find(variable)->second);
+	if(myCard.var_or_terr) {
+		g->SetMarkerColor(palette.find(territory)->second);
+		g->SetLineColor(palette.find(territory)->second);
+	} else {
+		g->SetMarkerColor(palette.find(variable)->second);
+		g->SetLineColor(palette.find(variable)->second);
+	}
+	g->SetLineWidth(3);
     return g;
 }
 
@@ -314,12 +321,6 @@ void gPlotter::Normalize(vector<shared_ptr<TH2D>>& hs, vector<shared_ptr<TGraphE
 		if(hs[i]->GetXaxis()->GetXmax()>xMax) xMax = hs[i]->GetXaxis()->GetXmax();
 		if(hs[i]->GetYaxis()->GetXmin()<yMin) yMin = hs[i]->GetYaxis()->GetXmin();
 		if(hs[i]->GetYaxis()->GetXmax()>yMax) yMax = hs[i]->GetYaxis()->GetXmax();
-//		for(unsigned int j=i; j<hs.size(); j++) {
-//			if (hs[j]->GetYaxis()->GetXmax() > hs[i]->GetYaxis()->GetXmax()) {
-//				iter_swap(hs.begin() + i, hs.begin() + j);
-//				iter_swap(gs.begin() + i, gs.begin() + j);
-//			}
-//		}
 	}
 	for(unsigned int i=0; i<hs.size(); i++) { ///< Setting for all the same "x" range
 		hs[i]->GetXaxis()->SetLimits(xMin,xMax);
@@ -373,21 +374,6 @@ void gPlotter::SetPalette() {
 	}
 	return;
 }
-
-//void gPlotter::SetPopulation() {
-//	population.insert(std::pair<string, double>("Italy",		60550075.));
-//	population.insert(std::pair<string, double>("Spain",		46736776.));
-//	population.insert(std::pair<string, double>("US",			329064917.));
-//	population.insert(std::pair<string, double>("UK",			67530172.));
-//	population.insert(std::pair<string, double>("Germany",		83517045.));
-//	population.insert(std::pair<string, double>("France",		65129728.));
-//	population.insert(std::pair<string, double>("Sweden",		10036379.));
-//	population.insert(std::pair<string, double>("Switzerland",	8591365.));
-//	population.insert(std::pair<string, double>("South Korea",	51225308));
-//	population.insert(std::pair<string, double>("Argentina",	44780677.));
-//	population.insert(std::pair<string, double>("Brazil",		211049527.));
-//	return;
-//}
 
 gPlotter::~gPlotter() {
 	// TODO Auto-generated destructor stub

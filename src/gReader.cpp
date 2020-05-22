@@ -93,6 +93,7 @@ void gDataReader::WriteToRootDB() {
 		return;
 	}
 
+	if(myCard.verbose) cout << "   gDataReader::WriteToRootDB --> Writing to " << root_dir << "/" << root_db_file << endl;
 	myRootDB->SetData(DataSample);
 	myRootDB->Write();
 	myRootDB->Close();

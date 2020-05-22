@@ -25,6 +25,7 @@ public:
 	vector<gDataEntry>					GetTerritoryData(const string&);
 	string 								GetName()	{return name;};
 	int									GetDayZero(const string&, const string&, int);
+	gDataEntry							GetDayZeroEntry(const string&, const string&, int);
 
 	void Print(int);
 

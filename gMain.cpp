@@ -71,6 +71,6 @@ void gMain::Finish() {
 		myPlotter->Draw();
 		myApp->Run();
 	}
-
+	if(myCard.verbose) cout << "gMain::Execute --> THE END" << endl;
 	return;
 }

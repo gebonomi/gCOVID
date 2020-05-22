@@ -103,6 +103,7 @@ void gDataEntry::FillValuesItaly(const string& legend, const string& line) {
 	getline(iss_line, dummy, ',');          ///< tamponi
         s.clear(); s.str(dummy.c_str());
         s >> rawValues.at("tests");
+        getline(iss_line, dummy, ',');  ///< casi_testati
     return;
 }
 
@@ -275,6 +276,12 @@ void gDataEntry::Print(int option = 0) {
     	   cout << right << setw(5) << setfill(' ')  << new_deceased;
     	   ///< pop (in milions)
     	   cout << right << setw(8) << setfill(' ')  << setprecision(1) << population/1.e6;
+    	   cout << endl;
+    	   break;
+       case 99: ///< Only "day zero"
+    	   cout << left  << setw(11) << setfill(' ')  << territory.substr(0,10);
+    	   cout << left  << setw(9)  << setfill(' ')  << day_of_the_year << " (" << date << ")";
+    	   cout << " -> confirmed " << confirmed << " -> deceased " << deceased;
     	   cout << endl;
     	   break;
 	}

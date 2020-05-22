@@ -27,6 +27,7 @@ private:
 	vector<gDataEntry>		RankingRaw; 		///< One entry per territory only
 	vector<gDataEntry>		RankingRate;		///< All entries of all territories
 	vector<gDataEntry>		RankingDouble;		///< All entries of all territories
+	vector<gDataEntry>		RankingDayZero;		///< One entry per territory only (the one of "day zero" - see gCOVID.card)
 
 	void 					ThroughData();
 	void 					OrderRawBy();
@@ -35,6 +36,11 @@ private:
 	void					ShowRankingRaw();
 	void					ShowRankingRate();
 	void					ShowRankingDouble();
+
+	static bool SortByDay(const gDataEntry& a, const gDataEntry& b) {
+	    return (a.day_of_the_year < b.day_of_the_year);
+	}
+
 };
 
 #endif /* INCLUDE_GANALYZER_H_ */
