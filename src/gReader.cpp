@@ -19,11 +19,14 @@ gDataReader::gDataReader(gCard& Card) {
 void gDataReader::ReadData() {
 
 	if(myCard.root_db_read) {
+		if(myCard.verbose) cout << "   gDataReader::ReadData --> Reading from ROOT" << endl;
 		FillDataFromRootDB();
 	} else {
+		if(myCard.verbose) cout << "   gDataReader::ReadData --> Reading from CSV" << endl;
 		FillDataFromCSV();
 	}
 	if(myCard.root_db_create) WriteToRootDB();
+	if(myCard.verbose) cout << "   gDataReader::ReadData --> Adding Rates and Doubles" << endl;
 	DataSample->AddRates();
 	DataSample->AddDoubles();
 }
@@ -49,9 +52,13 @@ void gDataReader::FillDataFromCSV() {
 	///< Reading population data
 	pop = ReadPopulation();
 	///< Reading values from the CSV repositories
+	if(myCard.verbose) cout << "   gDataReader::ReadData --> Reading WORLD" << endl;
 	shared_ptr<gDataSample> World 		= ReadFromWorldCSV(world_repo_dir);
+	if(myCard.verbose) cout << "   gDataReader::ReadData --> Reading ITALIA" << endl;
 	shared_ptr<gDataSample> Italy 		= ReadFromItalyCSV(italy_repo_file);
+	if(myCard.verbose) cout << "   gDataReader::ReadData --> Reading REGIONI" << endl;
 	shared_ptr<gDataSample> Regioni 	= ReadFromItalyCSV(regioni_repo_file);
+	if(myCard.verbose) cout << "   gDataReader::ReadData --> Reading PROVINCE" << endl;
 	shared_ptr<gDataSample> Province 	= ReadFromItalyCSV(province_repo_file);
 	Regioni->Append(Italy); ///< Adding ITA sample to the one in Regioni
 	///< Merging all
@@ -111,6 +118,7 @@ shared_ptr<gDataSample> gDataReader::ReadFromItalyCSV(const string& repo_file) {
     if (myfile.is_open()) {
 		getline(myfile, legend); ///< Reading legend line
 		while (getline(myfile, line)) { ///< Reading lines with values
+			if(line.size()<2) continue; /// Skip empty lines
 			this_entry.FillValues(name, legend, line); ///< Parsing is done in the gDataEntry class
 			if(this_entry.territory.find("aggiornamento")!=std::string::npos) continue; ///< Removing spurious lines
 			local_data.push_back(this_entry);
