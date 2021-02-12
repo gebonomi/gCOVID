@@ -34,10 +34,10 @@ void gAnalyzer::ShowResults() {
 	if(myCard.rank_raw_flag) 	ShowRankingRaw();
 	if(myCard.rank_rate_flag) 	ShowRankingRate();
 	if(myCard.rank_double_flag) ShowRankingDouble();
-	std::sort(RankingDayZero.begin(), RankingDayZero.end(), SortByDay);
-	for(auto& e:RankingDayZero) {
-		if(e.sample=="world"&&e.day_of_the_year!=-1) e.Print(99);
-	}
+//	std::sort(RankingDayZero.begin(), RankingDayZero.end(), SortByDay);
+//	for(auto& e:RankingDayZero) {
+//		if(e.sample=="world"&&e.day_of_the_year!=-1) e.Print(99);
+//	}
 	return;
 }
 
